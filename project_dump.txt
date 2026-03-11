@@ -1,0 +1,3543 @@
+
+==================================================
+FILE: src\App.tsx
+==================================================
+
+import Hero from './components/Hero';
+import Features from './components/Features';
+import ProductPreview from './components/ProductPreview';
+import HowItWorks from './components/HowItWorks';
+import FinalCTA from './components/FinalCTA';
+
+function App() {
+  return (
+    <div className="min-h-screen bg-[#0B0F14] text-white overflow-hidden">
+      <Hero />
+      <Features />
+      <ProductPreview />
+      <HowItWorks />
+      <FinalCTA />
+    </div>
+  );
+}
+
+export default App;
+
+
+
+==================================================
+FILE: src\AppPos.tsx
+==================================================
+
+import { useState } from 'react';
+import { AuthProvider, useAuth } from './minipos/context/AuthContext';
+import Layout from './minipos/components/Layout';
+import Login from './minipos/pagesPOS1.0/Login';
+import Dashboard from './minipos/pagesPOS1.0/Dashboard';
+import Inventory from './minipos/pagesPOS1.0/Inventory';
+import POS from './minipos/pagesPOS1.0/POS';
+import Sales from './minipos/pagesPOS1.0/Sales';
+import { TrialProvider } from './minipos/trial/TrialProvider'
+
+type Page = 'dashboard' | 'inventory' | 'pos' | 'sales';
+
+function AppContent() {
+  const { isAuthenticated, isLoading } = useAuth();
+  const [currentPage, setCurrentPage] = useState<Page>('dashboard');
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
+        <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+      </div>
+      
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <Login />;
+  }
+
+  const renderPage = () => {
+    switch (currentPage) {
+      case 'dashboard':
+        return <Dashboard />;
+      case 'inventory':
+        return <Inventory />;
+      case 'pos':
+        return <POS />;
+      case 'sales':
+        return <Sales />;
+      default:
+        return <POS />;
+    }
+  };
+
+  return (
+    <Layout currentPage={currentPage} onNavigate={setCurrentPage}>
+      {renderPage()}
+    </Layout>
+  );
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <TrialProvider>
+        <AppContent />
+      </TrialProvider>
+    </AuthProvider>
+  );
+}
+
+export default App;
+
+
+
+==================================================
+FILE: src\components\Features.tsx
+==================================================
+
+import { Zap, Package, BarChart3, Sparkles } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+
+const features = [
+  {
+    icon: Zap,
+    title: 'Ventas rápidas',
+    description: 'Registra ventas en segundos desde una interfaz simple.',
+  },
+  {
+    icon: Package,
+    title: 'Control de inventario',
+    description: 'Administra tus productos y controla el stock fácilmente.',
+  },
+  {
+    icon: BarChart3,
+    title: 'Dashboard claro',
+    description: 'Visualiza ventas y movimientos en tiempo real.',
+  },
+  {
+    icon: Sparkles,
+    title: 'Gestión simple',
+    description: 'Diseñado para negocios pequeños que necesitan algo rápido y claro.',
+  },
+];
+
+export default function Features() {
+  const [visibleCards, setVisibleCards] = useState<number[]>([]);
+  const sectionRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          features.forEach((_, index) => {
+            setTimeout(() => {
+              setVisibleCards((prev) => [...prev, index]);
+            }, index * 150);
+          });
+        }
+      },
+      { threshold: 0.2 }
+    );
+
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <section ref={sectionRef} className="relative py-32 px-4 sm:px-6 lg:px-8">
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-blue-950/5 to-transparent"></div>
+
+      <div className="relative max-w-7xl mx-auto">
+        <div className="text-center mb-20">
+          <h2 className="text-4xl sm:text-5xl font-bold mb-4 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+            Todo lo que necesitas para vender<br />y controlar tu negocio
+          </h2>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {features.map((feature, index) => {
+            const Icon = feature.icon;
+            return (
+              <div
+                key={index}
+                className={`group relative bg-gradient-to-br from-gray-800/40 to-gray-900/40 backdrop-blur-sm border border-gray-700/50 rounded-2xl p-8 hover:border-blue-500/50 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-blue-500/10 ${
+                  visibleCards.includes(index)
+                    ? 'opacity-100 translate-y-0'
+                    : 'opacity-0 translate-y-8'
+                }`}
+                style={{ transitionDelay: `${index * 100}ms` }}
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-600/0 to-emerald-600/0 group-hover:from-blue-600/5 group-hover:to-emerald-600/5 rounded-2xl transition-all duration-500"></div>
+
+                <div className="relative">
+                  <div className="w-14 h-14 bg-blue-500/10 group-hover:bg-blue-500/20 rounded-xl flex items-center justify-center mb-6 transition-all duration-300 group-hover:scale-110">
+                    <Icon className="w-7 h-7 text-blue-400 group-hover:text-blue-300 transition-colors" />
+                  </div>
+
+                  <h3 className="text-xl font-semibold mb-3 text-white group-hover:text-blue-100 transition-colors">
+                    {feature.title}
+                  </h3>
+
+                  <p className="text-gray-400 leading-relaxed">
+                    {feature.description}
+                  </p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+
+
+==================================================
+FILE: src\components\FinalCTA.tsx
+==================================================
+
+import { ArrowRight } from 'lucide-react';
+import { Link } from "react-router-dom";
+
+export default function FinalCTA() {
+  return (
+    <section className="relative py-32 px-4 sm:px-6 lg:px-8">
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-to-r from-blue-600/10 via-emerald-600/10 to-blue-600/10 rounded-full blur-3xl animate-pulse-slow"></div>
+      </div>
+
+      <div className="relative max-w-4xl mx-auto text-center">
+        <div className="bg-gradient-to-br from-gray-800/40 to-gray-900/40 backdrop-blur-sm border border-gray-700/50 rounded-3xl p-12 sm:p-16 shadow-2xl">
+          <h2 className="text-4xl sm:text-5xl font-bold mb-6 bg-gradient-to-r from-white via-blue-100 to-white bg-clip-text text-transparent">
+            Prueba el POS ahora mismo
+          </h2>
+
+          <p className="text-xl text-gray-400 mb-10 max-w-2xl mx-auto">
+            Accede a la demo y explora el sistema en minutos.
+          </p>
+
+          <Link 
+            to="/pos"
+            className="group inline-flex items-center gap-3 px-10 py-5 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 rounded-full text-xl font-semibold transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/50"
+          >
+            Probar POS ahora
+            <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
+          </Link >
+        </div>
+      </div>
+
+      <div className="mt-20 text-center">
+        <p className="text-sm text-gray-500">
+          © 2024 Mini POS. Sistema de punto de venta simple y moderno.
+        </p>
+      </div>
+    </section>
+  );
+}
+
+
+
+==================================================
+FILE: src\components\Hero.tsx
+==================================================
+
+import { ArrowRight } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Link } from "react-router-dom";
+
+export default function Hero() {
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    setIsVisible(true);
+  }, []);
+
+  return (
+    <section className="relative min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8 overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-radial from-blue-900/10 via-transparent to-transparent animate-pulse-slow"></div>
+
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/5 rounded-full blur-3xl animate-float"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-emerald-500/5 rounded-full blur-3xl animate-float-delayed"></div>
+      </div>
+
+      <div className="relative z-10 max-w-7xl mx-auto text-center">
+        <div className={`transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight mb-6 bg-gradient-to-r from-white via-blue-100 to-white bg-clip-text text-transparent leading-tight">
+            Controla ventas e inventario<br />de tu negocio en segundos
+          </h1>
+        </div>
+
+        <div className={`transition-all duration-1000 delay-200 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+          <p className="text-xl sm:text-2xl text-gray-400 mb-12 max-w-3xl mx-auto font-light">
+            CajaSimple Registra ventas, controla stock y ve cuánto vendes hoy.
+            Todo desde una sola pantalla.
+          </p>
+          
+        </div>
+
+        <div className={`transition-all duration-1000 delay-300 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+          <Link 
+            to="/pos?trial=1"
+            className="group inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 rounded-full text-lg font-semibold transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/50 animate-bounce-subtle"
+          >
+            Probar demo ahora
+            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+          </Link >
+        </div>
+
+        <div className={`mt-20 transition-all duration-1000 delay-500 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
+          <div className="relative max-w-5xl mx-auto">
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-emerald-600/20 blur-3xl animate-pulse-slow"></div>
+            <div className="relative bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-sm border border-gray-700/50 rounded-2xl p-8 shadow-2xl animate-float">
+              <div className="aspect-video bg-gradient-to-br from-gray-900 to-gray-800 rounded-lg border border-gray-700 flex items-center justify-center">
+                <div className="text-center">
+                  <div className="w-20 h-20 mx-auto mb-4 bg-blue-500/20 rounded-2xl flex items-center justify-center">
+                    <div className="w-12 h-12 bg-blue-500 rounded-xl animate-pulse"></div>
+                  </div>
+                  <p className="text-gray-400 text-sm">CajaSimple Interface</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+    </section>
+  );
+}
+
+
+
+==================================================
+FILE: src\components\HowItWorks.tsx
+==================================================
+
+import { MousePointer, Search, Rocket } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+
+const steps = [
+  {
+    icon: MousePointer,
+    title: 'Crea un producto',
+    description: 'Deja a la IA organizar datos',
+  },
+  {
+    icon: Search,
+    title: 'Tócalo para vender',
+    description: 'Descubre lo facil que puedes ser',
+  },
+  {
+    icon: Rocket,
+    title: 'Mira cuánto vendiste hoy',
+    description: 'Listo para usar de inmediato',
+  },
+];
+
+export default function HowItWorks() {
+  const [visibleSteps, setVisibleSteps] = useState<number[]>([]);
+  const sectionRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          steps.forEach((_, index) => {
+            setTimeout(() => {
+              setVisibleSteps((prev) => [...prev, index]);
+            }, index * 200);
+          });
+        }
+      },
+      { threshold: 0.3 }
+    );
+
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <section ref={sectionRef} className="relative py-32 px-4 sm:px-6 lg:px-8">
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-emerald-950/5 to-transparent"></div>
+
+      <div className="relative max-w-5xl mx-auto">
+        <div className="text-center mb-20">
+          <h2 className="text-4xl sm:text-5xl font-bold mb-4 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+            Empieza en segundos
+          </h2>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
+          <div className="hidden md:block absolute top-1/2 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-blue-500/20 to-transparent -translate-y-1/2"></div>
+
+          {steps.map((step, index) => {
+            const Icon = step.icon;
+            return (
+              <div
+                key={index}
+                className={`relative transition-all duration-700 ${
+                  visibleSteps.includes(index)
+                    ? 'opacity-100 translate-y-0'
+                    : 'opacity-0 translate-y-8'
+                }`}
+              >
+                <div className="text-center">
+                  <div className="relative inline-block mb-6">
+                    <div className="absolute inset-0 bg-blue-500/20 rounded-full blur-2xl animate-pulse-slow"></div>
+                    <div className="relative w-20 h-20 bg-gradient-to-br from-gray-800 to-gray-900 border-2 border-blue-500/50 rounded-full flex items-center justify-center mx-auto">
+                      <Icon className="w-9 h-9 text-blue-400" />
+                    </div>
+                  </div>
+
+                  <h3 className="text-xl font-semibold mb-3 text-white">
+                    {step.title}
+                  </h3>
+
+                  <p className="text-gray-400">
+                    {step.description}
+                  </p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+
+
+==================================================
+FILE: src\components\POSDemo.tsx
+==================================================
+
+import { ArrowLeft } from 'lucide-react';
+
+export default function POSDemo() {
+  return (
+    <div className="min-h-screen bg-[#0B0F14] text-white flex items-center justify-center px-4">
+      <div className="text-center max-w-2xl">
+        <div className="w-20 h-20 mx-auto mb-6 bg-blue-500/20 rounded-2xl flex items-center justify-center">
+          <div className="w-12 h-12 bg-blue-500 rounded-xl animate-pulse"></div>
+        </div>
+        <h1 className="text-4xl font-bold mb-4">Demo del Mini POS</h1>
+        <p className="text-gray-400 mb-8">
+          La demostración completa del sistema estará disponible pronto.
+        </p>
+        <a
+          href="/"
+          className="inline-flex items-center gap-2 px-6 py-3 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Volver al inicio
+        </a>
+      </div>
+    </div>
+  );
+}
+
+
+
+==================================================
+FILE: src\components\ProductPreview.tsx
+==================================================
+
+import { Package, TrendingUp, PieChart } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+
+const indicators = [
+  {
+    icon: Package,
+    label: 'Inventario',
+    position: 'top-1/4 left-8',
+    delay: 0,
+  },
+  {
+    icon: TrendingUp,
+    label: 'Ventas',
+    position: 'top-1/2 right-8',
+    delay: 300,
+  },
+  {
+    icon: PieChart,
+    label: 'Reportes',
+    position: 'bottom-1/4 left-1/3',
+    delay: 600,
+  },
+];
+
+export default function ProductPreview() {
+  const [visibleIndicators, setVisibleIndicators] = useState<number[]>([]);
+  const [isVisible, setIsVisible] = useState(false);
+  const sectionRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setIsVisible(true);
+          indicators.forEach((_, index) => {
+            setTimeout(() => {
+              setVisibleIndicators((prev) => [...prev, index]);
+            }, indicators[index].delay);
+          });
+        }
+      },
+      { threshold: 0.3 }
+    );
+
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <section ref={sectionRef} className="relative py-32 px-4 sm:px-6 lg:px-8">
+      <div className="relative max-w-6xl mx-auto">
+        <div className={`relative transition-all duration-1000 ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-emerald-600/10 blur-3xl"></div>
+
+          <div className="relative bg-gradient-to-br from-gray-800/60 to-gray-900/60 backdrop-blur-sm border border-gray-700/50 rounded-3xl p-8 sm:p-12 shadow-2xl">
+            <div className="aspect-video bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 rounded-2xl border border-gray-700 overflow-hidden relative">
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="grid grid-cols-3 gap-4 w-full p-8">
+                  <div className="col-span-2 space-y-4">
+                    <div className="h-12 bg-blue-500/10 rounded-lg animate-pulse"></div>
+                    <div className="h-32 bg-gray-700/30 rounded-lg"></div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="h-24 bg-emerald-500/10 rounded-lg animate-pulse" style={{ animationDelay: '1s' }}></div>
+                      <div className="h-24 bg-blue-500/10 rounded-lg animate-pulse" style={{ animationDelay: '1.5s' }}></div>
+                    </div>
+                  </div>
+                  <div className="space-y-4">
+                    <div className="h-20 bg-gray-700/30 rounded-lg"></div>
+                    <div className="h-20 bg-gray-700/30 rounded-lg"></div>
+                    <div className="h-20 bg-gray-700/30 rounded-lg"></div>
+                  </div>
+                </div>
+              </div>
+
+              {indicators.map((indicator, index) => {
+                const Icon = indicator.icon;
+                return (
+                  <div
+                    key={index}
+                    className={`absolute ${indicator.position} transition-all duration-700 ${
+                      visibleIndicators.includes(index)
+                        ? 'opacity-100 scale-100'
+                        : 'opacity-0 scale-50'
+                    }`}
+                  >
+                    <div className="relative group">
+                      <div className="absolute inset-0 bg-blue-500/20 rounded-full blur-xl group-hover:bg-blue-500/30 transition-all"></div>
+                      <div className="relative bg-gray-900/90 backdrop-blur-sm border border-blue-500/50 rounded-full px-4 py-2 flex items-center gap-2 shadow-lg">
+                        <Icon className="w-4 h-4 text-blue-400" />
+                        <span className="text-sm font-medium text-white">{indicator.label}</span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+
+
+==================================================
+FILE: src\main.tsx
+==================================================
+
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+
+import App from './App.tsx';
+import AppPos from './AppPos.tsx';
+
+import './index.css';
+
+createRoot(document.getElementById('root')!).render(
+  <StrictMode>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<App />} />
+        <Route path="/pos" element={<AppPos />} />
+      </Routes>
+    </BrowserRouter>
+  </StrictMode>
+);
+
+
+==================================================
+FILE: src\minipos\components\Layout.tsx
+==================================================
+
+import { ReactNode } from 'react';
+import { useAuth } from '../context/AuthContext';
+import {
+  LayoutDashboard,
+  Package,
+  ShoppingCart,
+  Receipt,
+  LogOut,
+  Menu,
+  X,
+} from 'lucide-react';
+import { useState } from 'react';
+import TrialOverlay from '../trial/TrialOverlay';
+import TrialQuestion from '../trial/TrialQuestion'
+import FirstSaleCelebration from '../trial/FirstSaleCelebration';
+
+
+interface LayoutProps {
+  children: ReactNode;
+  currentPage: 'dashboard' | 'inventory' | 'pos' | 'sales';
+  onNavigate: (page: 'dashboard' | 'inventory' | 'pos' | 'sales') => void;
+}
+
+export default function Layout({ children, currentPage, onNavigate }: LayoutProps) {
+  const { user, logout } = useAuth();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const navItems = [
+    { id: 'dashboard' as const, label: 'Dashboard', icon: LayoutDashboard },
+    { id: 'pos' as const, label: 'Punto de Venta', icon: ShoppingCart },
+    { id: 'inventory' as const, label: 'Inventario', icon: Package },
+    { id: 'sales' as const, label: 'Ventas', icon: Receipt },
+  ];
+
+  const handleLogout = () => {
+    if (confirm('¿Está seguro de cerrar sesión?')) {
+      logout();
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+      <nav className="bg-slate-800/50 backdrop-blur-xl border-b border-slate-700/50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center gap-8">
+              <div className="flex items-center gap-3">
+                <div className="bg-blue-600 p-2 rounded-lg">
+                  <ShoppingCart className="w-6 h-6 text-white" />
+                </div>
+                <span className="text-white font-bold text-xl">POS System</span>
+              </div>
+
+              <div className="hidden md:flex items-center gap-2">
+                {navItems.map((item) => {
+                  const Icon = item.icon;
+                  const isActive = currentPage === item.id;
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => {
+                        onNavigate(item.id);
+                        setIsMobileMenuOpen(false);
+                      }}
+                      className={`flex items-center gap-2 px-4 py-2 rounded-lg transition ${
+                        isActive
+                          ? 'bg-blue-600 text-white'
+                          : 'text-slate-300 hover:bg-slate-700'
+                      }`}
+                    >
+                      <Icon className="w-4 h-4" />
+                      <span className="text-sm font-medium">{item.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="flex items-center gap-4">
+              <div className="hidden sm:flex items-center gap-3 px-4 py-2 bg-slate-900/50 rounded-lg border border-slate-700">
+                <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+                  <span className="text-white text-sm font-semibold">
+                    {user?.nombre?.charAt(0)?.toUpperCase() ?? 'U'}
+                  </span>
+                </div>
+                <div>
+                  <p className="text-white text-sm font-medium">
+                    {user?.nombre ?? 'Usuario'}
+                  </p>
+                  <p className="text-slate-400 text-xs">
+                    {user?.tipo_usuario ?? 'admin'}
+                  </p>
+                </div>
+              </div>
+
+              <button
+                onClick={handleLogout}
+                className="hidden sm:flex items-center gap-2 px-4 py-2 bg-red-600/20 hover:bg-red-600/30 text-red-400 rounded-lg transition"
+              >
+                <LogOut className="w-4 h-4" />
+                <span className="text-sm">Salir</span>
+              </button>
+
+              <button
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="md:hidden p-2 text-slate-400 hover:text-white"
+              >
+                {isMobileMenuOpen ? (
+                  <X className="w-6 h-6" />
+                ) : (
+                  <Menu className="w-6 h-6" />
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {isMobileMenuOpen && (
+          <div className="md:hidden border-t border-slate-700">
+            <div className="px-4 py-4 space-y-2">
+              {navItems.map((item) => {
+                const Icon = item.icon;
+                const isActive = currentPage === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => {
+                      onNavigate(item.id);
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition ${
+                      isActive
+                        ? 'bg-blue-600 text-white'
+                        : 'text-slate-300 hover:bg-slate-700'
+                    }`}
+                  >
+                    <Icon className="w-5 h-5" />
+                    <span className="font-medium">{item.label}</span>
+                  </button>
+                );
+              })}
+
+              <div className="pt-4 border-t border-slate-700">
+                <div className="flex items-center gap-3 px-4 py-3 bg-slate-900/50 rounded-lg border border-slate-700 mb-2">
+                  <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
+                    <span className="text-white font-semibold">
+                      {user?.nombre?.charAt(0)?.toUpperCase() ?? 'U'}
+                    </span>
+                  </div>
+                  <div>
+                    <p className="text-white text-sm font-medium">
+                      {user?.nombre ?? 'Usuario'}
+                    </p>
+                    <p className="text-slate-400 text-xs">
+                      {user?.tipo_usuario ?? 'admin'}
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  onClick={handleLogout}
+                  className="w-full flex items-center gap-3 px-4 py-3 bg-red-600/20 hover:bg-red-600/30 text-red-400 rounded-lg transition"
+                >
+                  <LogOut className="w-5 h-5" />
+                  <span className="font-medium">Cerrar Sesión</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </nav>
+
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {children}
+        
+      </main>
+      
+      <TrialOverlay />
+      <TrialQuestion />
+      <FirstSaleCelebration />
+    </div>
+  );
+}
+
+
+
+==================================================
+FILE: src\minipos\context\AuthContext.tsx
+==================================================
+
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { api } from '../lib/api';
+
+type User = {
+  id: string
+  nombre: string
+  email?: string
+  tipo_usuario?: string
+  role?: string
+  trial?: boolean
+
+  company?: {
+    id: string
+    name: string
+    slug: string
+  }
+}
+
+interface AuthContextType {
+  user: User | null;
+  isAuthenticated: boolean;
+  login: (companySlug: string, email: string, password: string) => Promise<void>;
+  startTrial: () => Promise<void>;
+  logout: () => void;
+  isLoading: boolean;
+  register: (data: {
+    company_name: string
+    company_slug: string
+    nombre: string
+    email: string
+    password: string
+  }) => Promise<void>
+}
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const startTrial = async () => {
+  const response = await api.startTrial();
+    setUser(response.user);
+  };
+
+  useEffect(() => {
+    const storedUser = api.getUser();
+    if (storedUser) {
+      setUser(storedUser);
+    }
+    setIsLoading(false);
+  }, []);
+
+  const login = async (companySlug: string, email: string, password: string) => {
+    const response = await api.login({
+      company_slug: companySlug,
+      email,
+      password,
+    });
+    setUser(response.user);
+  };
+
+  const register = async (data: {
+    company_name: string
+    company_slug: string
+    nombre: string
+    email: string
+    password: string
+  }) => {
+
+    const response = await api.register(data)
+
+    setUser({
+      ...response.user,
+      company: response.company,
+      trial: false
+    })
+
+  }
+
+  const logout = () => {
+    api.logout();
+    setUser(null);
+  };
+
+  return (
+    <AuthContext.Provider
+      value={{
+        user,
+        isAuthenticated: !!user,
+        login,
+        startTrial,
+        logout,
+        isLoading,
+        register
+      }}
+>
+      {children}
+    </AuthContext.Provider>
+  );
+}
+
+export function useAuth() {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+}
+
+
+
+==================================================
+FILE: src\minipos\pagesPOS1.0\Dashboard.tsx
+==================================================
+
+import { useEffect, useState, useRef } from 'react';
+import { api } from '../lib/api';
+import {
+  DollarSign,
+  ShoppingCart,
+  Package,
+  TrendingDown,
+  RefreshCw
+} from 'lucide-react';
+import { useTrial } from '../trial/TrialProvider'
+import DashboardTour from "../trial/DashboardTour";
+
+interface DashboardData {
+  today: {
+    total_sales: number;
+    transactions: number;
+    total_items: number;
+  };
+  top_products: Array<{ name: string; quantity: number }>;
+  low_stock: Array<{ name: string; stock: number }>;
+}
+
+export default function Dashboard() {
+  const [data, setData] = useState<DashboardData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState('');
+  const { trackAction } = useTrial()
+  const kpiRef = useRef<HTMLDivElement>(null);
+
+
+  useEffect(() => {
+    loadDashboard();
+    trackAction('visited_dashboard')
+  }, []);
+
+  const loadDashboard = async () => {
+    try {
+      setError('');
+      setIsLoading(true);
+
+      const response = await api.getDashboard();
+
+      // Defensa por si backend cambia forma
+      const normalized: DashboardData = {
+        today: {
+          total_sales: response?.today?.total_sales ?? 0,
+          transactions: response?.today?.transactions ?? 0,
+          total_items: response?.today?.total_items ?? 0,
+        },
+        top_products: response?.top_products ?? [],
+        low_stock: response?.low_stock ?? [],
+      };
+
+      setData(normalized);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error al cargar dashboard');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-red-900/20 border border-red-500/50 rounded-lg p-4">
+        <p className="text-red-400">{error}</p>
+        <button
+          onClick={loadDashboard}
+          className="mt-3 text-sm text-blue-400 hover:text-blue-300 flex items-center gap-2"
+        >
+          <RefreshCw className="w-4 h-4" />
+          Reintentar
+        </button>
+      </div>
+    );
+  }
+
+  if (!data) return null;
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-white mb-2">Dashboard</h1>
+          <p className="text-slate-400">Resumen de ventas de hoy</p>
+        </div>
+
+        <button
+          onClick={loadDashboard}
+          className="bg-slate-800 hover:bg-slate-700 text-slate-300 px-4 py-2 rounded-lg flex items-center gap-2 transition"
+        >
+          <RefreshCw className="w-4 h-4" />
+          Actualizar
+        </button>
+      </div>
+
+      {/* KPIs */}
+      <div ref={kpiRef} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <KpiCard
+          icon={<DollarSign className="w-6 h-6 text-green-400" />}
+          label="Ventas Totales"
+          value={`$${data.today.total_sales.toFixed(2)}`}
+          color="green"
+        />
+
+        <KpiCard
+          icon={<ShoppingCart className="w-6 h-6 text-blue-400" />}
+          label="Transacciones"
+          value={data.today.transactions}
+          color="blue"
+        />
+
+        <KpiCard
+          icon={<Package className="w-6 h-6 text-purple-400" />}
+          label="Items Vendidos"
+          value={data.today.total_items}
+          color="purple"
+        />
+
+        <KpiCard
+          icon={<TrendingDown className="w-6 h-6 text-orange-400" />}
+          label="Stock Bajo"
+          value={data.low_stock.length}
+          color="orange"
+        />
+      </div>
+
+      {/* Listas */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Top productos */}
+        <div className="bg-slate-800/50 backdrop-blur-xl rounded-xl border border-slate-700/50 p-6">
+          <h2 className="text-xl font-semibold text-white mb-4">
+            Top Productos
+          </h2>
+
+          {data.top_products.length === 0 ? (
+            <EmptyState text="No hay datos disponibles" />
+          ) : (
+            <div className="space-y-3">
+              {data.top_products.map((product, index) => (
+                <div
+                  key={index}
+                  className="flex items-center justify-between p-3 bg-slate-900/50 rounded-lg"
+                >
+                  <span className="text-slate-300">{product.name}</span>
+                  <span className="text-blue-400 font-semibold">
+                    {product.quantity} ventas
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Stock bajo */}
+        <div className="bg-slate-800/50 backdrop-blur-xl rounded-xl border border-slate-700/50 p-6">
+          <h2 className="text-xl font-semibold text-white mb-4">
+            Productos con Stock Bajo
+          </h2>
+
+          {data.low_stock.length === 0 ? (
+            <EmptyState text="Todo el stock está en niveles óptimos" />
+          ) : (
+            <div className="space-y-3">
+              {data.low_stock.map((product, index) => (
+                <div
+                  key={index}
+                  className="flex items-center justify-between p-3 bg-slate-900/50 rounded-lg border border-orange-500/20"
+                >
+                  <span className="text-slate-300">{product.name}</span>
+                  <span className="text-orange-400 font-semibold">
+                    Stock: {product.stock}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+      <DashboardTour kpiRef={kpiRef} />
+    </div>
+  );
+}
+
+/* COMPONENTES AUXILIARES */
+
+function KpiCard({
+  icon,
+  label,
+  value,
+  color
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string | number;
+  color: 'green' | 'blue' | 'purple' | 'orange';
+}) {
+
+  const colorMap = {
+    green: 'bg-green-600/20',
+    blue: 'bg-blue-600/20',
+    purple: 'bg-purple-600/20',
+    orange: 'bg-orange-600/20',
+  }
+
+  return (
+    <div className="bg-slate-800/50 backdrop-blur-xl rounded-xl border border-slate-700/50 p-6">
+      <div className="flex items-center justify-between mb-4">
+        <div className={`${colorMap[color]} p-3 rounded-lg`}>
+          {icon}
+        </div>
+      </div>
+      <p className="text-slate-400 text-sm mb-1">{label}</p>
+      <p className="text-3xl font-bold text-white">{value}</p>
+    </div>
+  );
+}
+
+function EmptyState({ text }: { text: string }) {
+  return (
+    <p className="text-slate-500 text-center py-8">
+      {text}
+    </p>
+  );
+}
+
+
+==================================================
+FILE: src\minipos\pagesPOS1.0\Inventory.tsx
+==================================================
+
+import { useEffect, useState, useRef } from 'react'
+import { api } from '../lib/api'
+import { useAuth } from '../context/AuthContext'
+import {
+  Package,
+  AlertTriangle,
+  Plus,
+  Edit2,
+  History,
+  X,
+  Upload,
+} from 'lucide-react'
+import { useTrial } from '../trial/TrialProvider'
+import InventoryTour from "../trial/InventoryTour";
+
+interface Product {
+  id: string
+  name: string
+  price: number
+  stock: number
+  stock_value: number
+  movements_count: number
+  last_movement: string | null
+  is_low_stock: boolean
+  image_url?: string
+}
+
+interface Movement {
+  id: string
+  movement_type: string
+  quantity: number
+  created_at: string
+  reference_id: string | null
+}
+
+export default function Inventory() {
+  const { user } = useAuth()
+  const [products, setProducts] = useState<Product[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState('')
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
+  const [showCreate, setShowCreate] = useState(false)
+  const [showEdit, setShowEdit] = useState(false)
+  const [showMovements, setShowMovements] = useState(false)
+  const [movements, setMovements] = useState<Movement[]>([])
+  const { trackAction } = useTrial()
+  const createButtonRef = useRef<HTMLButtonElement>(null);
+  const tableRef = useRef<HTMLTableElement>(null);
+
+  useEffect(() => {
+    loadProducts()
+    trackAction('visited_inventory')
+  }, [])
+
+const loadProducts = async () => {
+  try {
+    setIsLoading(true);
+
+    const response = await api.getProducts();
+
+    const normalized = response.map((p: any) => ({
+      id: p.id ?? p.product_id,   // ← clave
+      name: p.name,
+      price: Number(p.price),
+      stock: Number(p.stock),
+      stock_value: Number(p.stock_value ?? p.price * p.stock),
+      movements_count: Number(p.movements_count ?? 0),
+      last_movement: p.last_movement ?? null,
+      is_low_stock: Boolean(p.is_low_stock ?? p.stock <= 5),
+      image_url: p.image_url ?? null,
+    }));
+
+    setProducts(normalized);
+
+  } catch (err) {
+    setError(err instanceof Error ? err.message : 'Error al cargar productos');
+  } finally {
+    setIsLoading(false);
+  }
+};
+
+  const loadMovements = async (productId: string) => {
+    const response = await api.getProductMovements(productId)
+    setMovements(response)
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+      </div>
+    )
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex justify-between">
+        <h1 className="text-3xl font-bold text-white">Inventario</h1>
+        <button
+          ref={createButtonRef}
+          onClick={() => setShowCreate(true)}
+          className="bg-blue-600 px-4 py-2 rounded-lg text-white flex items-center gap-2"
+        >
+          <Plus className="w-4 h-4" />
+          Nuevo Producto
+        </button>
+      </div>
+
+      <table ref={tableRef} className="w-full text-left text-white">
+        <thead className="text-slate-400">
+          <tr>
+            <th>Producto</th>
+            <th>Precio</th>
+            <th>Stock</th>
+            <th>Valor</th>
+            <th>Mov</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {products.map((p) => (
+            <tr key={p.id} className="border-t border-slate-700">
+              <td className="py-3 flex items-center gap-3">
+                {p.image_url ? (
+                  <img
+                    src={p.image_url}
+                    className="w-10 h-10 rounded object-cover"
+                  />
+                ) : (
+                  <Package className="w-8 h-8 text-slate-600" />
+                )}
+                <div>
+                  <div>{p.name}</div>
+                  {p.is_low_stock && (
+                    <span className="text-xs text-orange-400 flex items-center gap-1">
+                      <AlertTriangle className="w-3 h-3" />
+                      Stock bajo
+                    </span>
+                  )}
+                </div>
+              </td>
+              <td>${p.price.toFixed(2)}</td>
+              <td>{p.stock}</td>
+              <td>${p.stock_value.toFixed(2)}</td>
+              <td>{p.movements_count}</td>
+              <td className="flex gap-2">
+                <button
+                  onClick={() => {
+                    setSelectedProduct(p)
+                    setShowMovements(true)
+                    loadMovements(p.id)
+                  }}
+                >
+                  <History className="w-4 h-4" />
+                </button>
+
+                {user?.tipo_usuario === 'admin' && (
+                  <button
+                    onClick={() => {
+                      setSelectedProduct(p)
+                      setShowEdit(true)
+                    }}
+                  >
+                    <Edit2 className="w-4 h-4" />
+                  </button>
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      {showCreate && (
+        <ProductModal
+          mode="create"
+          onClose={() => setShowCreate(false)}
+          onSuccess={loadProducts}
+        />
+      )}
+
+      {showEdit && selectedProduct && (
+        <ProductModal
+          mode="edit"
+          product={selectedProduct}
+          onClose={() => {
+            setShowEdit(false)
+            setSelectedProduct(null)
+          }}
+          onSuccess={loadProducts}
+        />
+      )}
+      <InventoryTour
+        createButtonRef={createButtonRef}
+        tableRef={tableRef}
+      />
+      {showMovements && selectedProduct && (
+        <MovementsModal
+          product={selectedProduct}
+          movements={movements}
+          onClose={() => setShowMovements(false)}
+        />
+      )}
+    </div>
+    
+  )
+}
+
+/* ============================= */
+/*        PRODUCT MODAL          */
+/* ============================= */
+
+function ProductModal({
+  mode,
+  product,
+  onClose,
+  onSuccess,
+}: {
+  mode: 'create' | 'edit'
+  product?: Product
+  onClose: () => void
+  onSuccess: () => void
+}) {
+  const [name, setName] = useState(product?.name || '')
+  const [price, setPrice] = useState(product?.price?.toString() || '')
+  const [stock, setStock] = useState(product?.stock?.toString() || '0')
+  const [imageFile, setImageFile] = useState<File | null>(null)
+  const [preview, setPreview] = useState<string | null>(
+    product?.image_url || null
+  )
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState('')
+  const { trackAction } = useTrial()
+
+  useEffect(() => {
+    if (!imageFile) return
+
+    const url = URL.createObjectURL(imageFile)
+    setPreview(url)
+
+    return () => URL.revokeObjectURL(url)
+  }, [imageFile])
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError('')
+    setIsLoading(true)
+
+    try {
+      let productId = product?.id
+
+      if (mode === 'create') {
+        const created = await api.createProduct({
+          name,
+          price: parseFloat(price),
+          stock: parseInt(stock),
+        })
+        productId = created.id
+      } else {
+        await api.updateProduct(productId!, {
+          name,
+          price: parseFloat(price),
+          stock: parseInt(stock),
+        })
+      }
+
+      if (imageFile && productId) {
+        const { upload_url, public_url } =
+          await api.getProductUploadUrl(productId, imageFile.type)
+
+        const upload = await fetch(upload_url, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': imageFile.type
+          },
+          body: imageFile
+        })
+
+        if (!upload.ok) {
+          const errorText = await upload.text()
+          throw new Error(`Upload failed: ${errorText}`)
+        }
+
+        await api.setProductImage(productId, public_url)
+
+        
+
+        
+      }
+
+      onSuccess()
+      trackAction('created_product')
+      onClose()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4">
+      <div className="bg-slate-800 p-6 rounded-xl w-full max-w-md">
+        <h2 className="text-white text-xl mb-4">
+          {mode === 'create' ? 'Nuevo Producto' : 'Editar Producto'}
+        </h2>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <input
+            className="w-full p-2 bg-slate-900 text-white rounded"
+            placeholder="Nombre"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+          />
+
+          <input
+            type="number"
+            step="0.01"
+            className="w-full p-2 bg-slate-900 text-white rounded"
+            placeholder="Precio"
+            value={price}
+            onChange={(e) => setPrice(e.target.value)}
+            required
+          />
+
+          <input
+            type="number"
+            className="w-full p-2 bg-slate-900 text-white rounded"
+            placeholder="Stock"
+            value={stock}
+            onChange={(e) => setStock(e.target.value)}
+            required
+          />
+
+          <label className="block text-slate-400 text-sm">Imagen</label>
+
+          {preview && (
+            <img
+              src={preview}
+              className="w-24 h-24 rounded object-cover mb-2"
+            />
+          )}
+
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) =>
+              setImageFile(e.target.files ? e.target.files[0] : null)
+            }
+          />
+
+          {error && <div className="text-red-400">{error}</div>}
+
+          <div className="flex gap-3">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 bg-slate-700 py-2 rounded text-white"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="flex-1 bg-blue-600 py-2 rounded text-white"
+            >
+              {isLoading ? 'Guardando...' : 'Guardar'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+    
+  )
+  
+}
+function MovementsModal({
+  product,
+  movements,
+  onClose,
+}: {
+  product: Product
+  movements: Movement[]
+  onClose: () => void
+}) {
+  const formatDate = (date: string) => {
+    return new Date(date).toLocaleString('es-ES', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    })
+  }
+
+  const getMovementTypeLabel = (type: string) => {
+    const types: Record<string, string> = {
+      sale: 'Venta',
+      purchase: 'Compra',
+      adjustment: 'Ajuste',
+      return: 'Devolución',
+    }
+    return types[type] || type
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
+      <div className="bg-slate-800 rounded-xl border border-slate-700 w-full max-w-2xl max-h-[80vh] flex flex-col">
+        <div className="flex items-center justify-between p-6 border-b border-slate-700">
+          <div>
+            <h2 className="text-xl font-semibold text-white">
+              Movimientos de {product.name}
+            </h2>
+            <p className="text-slate-400 text-sm mt-1">
+              Total: {movements.length}
+            </p>
+          </div>
+          <button onClick={onClose} className="text-slate-400 hover:text-white">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        <div className="flex-1 overflow-y-auto p-6">
+          {movements.length > 0 ? (
+            <div className="space-y-3">
+              {movements.map((movement) => (
+                <div
+                  key={movement.id}
+                  className="bg-slate-900/50 rounded-lg p-4 border border-slate-700/50"
+                >
+                  <div className="flex justify-between items-center">
+                    <span className="text-white font-medium">
+                      {getMovementTypeLabel(movement.movement_type)}
+                    </span>
+
+                    <span
+                      className={`font-semibold ${
+                        movement.quantity > 0
+                          ? 'text-green-400'
+                          : 'text-red-400'
+                      }`}
+                    >
+                      {movement.quantity > 0 ? '+' : ''}
+                      {movement.quantity}
+                    </span>
+                  </div>
+
+                  <div className="text-slate-400 text-sm mt-1">
+                    {formatDate(movement.created_at)}
+                  </div>
+
+                  {movement.reference_id && (
+                    <div className="text-slate-500 text-xs mt-1">
+                      Ref: {movement.reference_id}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center text-slate-500 py-10">
+              No hay movimientos registrados
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+
+==================================================
+FILE: src\minipos\pagesPOS1.0\Login.tsx
+==================================================
+
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { LogIn, UserPlus } from 'lucide-react';
+
+export default function Login() {
+
+  const { login, startTrial, register } = useAuth();
+
+  const [mode, setMode] = useState<'login' | 'register'>('login');
+
+  const [companySlug, setCompanySlug] = useState('');
+  const [companyName, setCompanyName] = useState('');
+  const [nombre, setNombre] = useState('');
+
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  const [searchParams] = useSearchParams();
+
+  useEffect(() => {
+
+    const trialParam = searchParams.get("trial");
+
+    if (trialParam === "1") {
+
+      const runTrial = async () => {
+        try {
+          setIsLoading(true);
+          await startTrial();
+        } catch (err) {
+          setError(err instanceof Error ? err.message : "Error al iniciar trial");
+        } finally {
+          setIsLoading(false);
+        }
+      };
+
+      runTrial();
+
+    }
+
+  }, []);
+
+  const handleLogin = async (e: React.FormEvent) => {
+
+    e.preventDefault();
+
+    setError('');
+    setIsLoading(true);
+
+    try {
+
+      await login(companySlug, email, password);
+
+    } catch (err) {
+
+      setError(err instanceof Error ? err.message : 'Error al iniciar sesión');
+
+    } finally {
+
+      setIsLoading(false);
+
+    }
+
+  };
+
+  const handleRegister = async (e: React.FormEvent) => {
+
+    e.preventDefault();
+
+    setError('');
+    setIsLoading(true);
+
+    try {
+
+      await register({
+        company_name: companyName,
+        company_slug: companySlug,
+        nombre,
+        email,
+        password
+      });
+
+    } catch (err) {
+
+      setError(err instanceof Error ? err.message : 'Error al crear cuenta');
+
+    } finally {
+
+      setIsLoading(false);
+
+    }
+
+  };
+
+  if (isLoading && searchParams.get("trial") === "1") {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-900">
+        <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"/>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4">
+
+      <div className="w-full max-w-md">
+
+        <div className="bg-slate-800/50 backdrop-blur-xl rounded-2xl shadow-2xl border border-slate-700/50 p-8">
+
+          <div className="flex justify-center mb-8">
+
+            <div className="bg-blue-600 p-4 rounded-xl">
+
+              {mode === "login"
+                ? <LogIn className="w-8 h-8 text-white"/>
+                : <UserPlus className="w-8 h-8 text-white"/>}
+
+            </div>
+
+          </div>
+
+          <h1 className="text-3xl font-bold text-white text-center mb-2">
+
+            {mode === "login" ? "Iniciar Sesión" : "Crear Cuenta"}
+
+          </h1>
+
+          <p className="text-slate-400 text-center mb-8">
+
+            {mode === "login"
+              ? "Ingresa tus credenciales"
+              : "Crea tu tienda en segundos"}
+
+          </p>
+
+          <form
+            onSubmit={mode === "login" ? handleLogin : handleRegister}
+            className="space-y-6"
+          >
+
+            {mode === "register" && (
+              <>
+                <input
+                  type="text"
+                  placeholder="Nombre de la empresa"
+                  value={companyName}
+                  onChange={(e) => setCompanyName(e.target.value)}
+                  className="w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg text-white"
+                  required
+                />
+
+                <input
+                  type="text"
+                  placeholder="Slug de la empresa"
+                  value={companySlug}
+                  onChange={(e) => setCompanySlug(e.target.value)}
+                  className="w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg text-white"
+                  required
+                />
+
+                <input
+                  type="text"
+                  placeholder="Tu nombre"
+                  value={nombre}
+                  onChange={(e) => setNombre(e.target.value)}
+                  className="w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg text-white"
+                  required
+                />
+              </>
+            )}
+
+            {mode === "login" && (
+              <input
+                type="text"
+                placeholder="empresa-slug"
+                value={companySlug}
+                onChange={(e) => setCompanySlug(e.target.value)}
+                className="w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg text-white"
+                required
+              />
+            )}
+
+            <input
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg text-white"
+              required
+            />
+
+            <input
+              type="password"
+              placeholder="Contraseña"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg text-white"
+              required
+            />
+
+            {error && (
+              <div className="bg-red-900/20 border border-red-500/50 rounded-lg p-3">
+                <p className="text-red-400 text-sm">{error}</p>
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg"
+            >
+
+              {isLoading
+                ? "Procesando..."
+                : mode === "login"
+                ? "Iniciar Sesión"
+                : "Crear Cuenta"}
+
+            </button>
+
+          </form>
+
+          <button
+            onClick={() =>
+              setMode(mode === "login" ? "register" : "login")
+            }
+            className="mt-6 w-full text-sm text-slate-400 hover:text-white"
+          >
+
+            {mode === "login"
+              ? "Crear una cuenta"
+              : "Ya tengo cuenta"}
+
+          </button>
+
+          <button
+            type="button"
+            onClick={async () => {
+              setError('');
+              setIsLoading(true);
+
+              try {
+                await startTrial();
+              } catch (err) {
+                setError(err instanceof Error ? err.message : 'Error al iniciar trial');
+              } finally {
+                setIsLoading(false);
+              }
+            }}
+            className="w-full mt-4 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 rounded-lg"
+          >
+            Probar Gratis 30 Minutos
+          </button>
+
+        </div>
+
+        <p className="text-slate-500 text-center text-sm mt-6">
+          Sistema de Punto de Venta
+        </p>
+
+      </div>
+
+    </div>
+  );
+}
+
+
+==================================================
+FILE: src\minipos\pagesPOS1.0\POS.tsx
+==================================================
+
+import { useEffect, useMemo, useState, useRef } from 'react';
+import { api } from '../lib/api';
+import {
+  ShoppingCart,
+  Plus,
+  Minus,
+  Trash2,
+  Search,
+  CreditCard,
+  Banknote,
+  CheckCircle2,
+} from 'lucide-react';
+import { useTrial } from '../trial/TrialProvider'
+import POSTour from '../trial/POSTour'
+
+interface Product {
+  id: string;
+  name: string;
+  price: number;
+  stock: number;
+  image_url?: string | null;
+}
+
+interface CartItem {
+  product_id: string;
+  name: string;
+  price: number;
+  quantity: number;
+  max_stock: number;
+}
+
+export default function POS() {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [cart, setCart] = useState<CartItem[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState<'cash' | 'card'>('cash');
+  const { trackAction } = useTrial()
+  const [showCartMobile, setShowCartMobile] = useState(false);
+  const productRef = useRef<HTMLButtonElement>(null)
+  const cartRef = useRef<HTMLDivElement>(null)
+  const checkoutRef = useRef<HTMLButtonElement>(null)
+
+  useEffect(() => {
+    loadProducts();
+  }, []);
+
+  const loadProducts = async () => {
+    try {
+      const response = await api.getProducts();
+
+      // 🔒 Normalización fuerte
+      const normalized: Product[] = response.map((p: any) => ({
+        id: p.id ?? p.product_id,
+        name: p.name,
+        price: Number(p.price),
+        stock: Number(p.stock),
+        image_url: p.image_url ?? null,
+      }));
+
+      setProducts(normalized);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error al cargar productos');
+    }
+  };
+
+  const filteredProducts = useMemo(() => {
+    if (!searchTerm.trim()) return products;
+    return products.filter(p =>
+      p.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [searchTerm, products]);
+
+  const showTempError = (msg: string) => {
+    setError(msg);
+    setTimeout(() => setError(''), 3000);
+  };
+
+  const addToCart = (product: Product) => {
+    if (!product.id) return;
+
+    setCart(prev => {
+      const existing = prev.find(i => i.product_id === product.id);
+
+      if (existing) {
+        if (existing.quantity + 1 > existing.max_stock) {
+          showTempError('Stock insuficiente');
+          return prev;
+        }
+
+        return prev.map(i =>
+          i.product_id === product.id
+            ? { ...i, quantity: i.quantity + 1 }
+            : i
+        );
+      }
+
+      if (product.stock < 1) {
+        showTempError('Producto sin stock');
+        return prev;
+      }
+
+      return [
+        ...prev,
+        {
+          product_id: product.id,
+          name: product.name,
+          price: product.price,
+          quantity: 1,
+          max_stock: product.stock,
+        },
+      ];
+    });
+  };
+
+  const updateQuantity = (productId: string, delta: number) => {
+    setCart(prev =>
+      prev
+        .map(item => {
+          if (item.product_id !== productId) return item;
+
+          const newQty = item.quantity + delta;
+
+          if (newQty <= 0) return null;
+          if (newQty > item.max_stock) {
+            showTempError('Stock insuficiente');
+            return item;
+          }
+
+          return { ...item, quantity: newQty };
+        })
+        .filter(Boolean) as CartItem[]
+    );
+  };
+
+  const removeFromCart = (productId: string) => {
+    setCart(prev => prev.filter(i => i.product_id !== productId));
+  };
+
+  const total = useMemo(() => {
+    return cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  }, [cart]);
+
+  const handleCheckout = async () => {
+    if (cart.length === 0) {
+      showTempError('El carrito está vacío');
+      return;
+    }
+
+    setIsLoading(true);
+    setError('');
+
+    try {
+      // 🔥 EXACTO formato que tu SQL espera
+      const payload = {
+        items: cart.map(item => ({
+          product_id: item.product_id,
+          quantity: item.quantity,
+          price: item.price,
+        })),
+        payment_method: paymentMethod,
+      };
+
+      await api.createSale(payload);
+
+      setSuccess('Venta realizada con éxito');
+      trackAction('completed_sale')
+      setCart([]);
+      await loadProducts();
+
+      setTimeout(() => setSuccess(''), 3000);
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message.toLowerCase() : '';
+
+      if (message.includes('insufficient stock')) {
+        showTempError('Stock insuficiente');
+      } else if (message.includes('product not found')) {
+        showTempError('Producto no encontrado');
+      } else {
+        showTempError('Error al procesar venta');
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 min-h-screen lg:h-[calc(100vh-8rem)]">
+
+      {/* PRODUCTOS */}
+      <div className="lg:col-span-2 flex flex-col gap-4 overflow-hidden">
+        <div>
+          <h1 className="text-3xl font-bold text-white mb-4">Punto de Venta</h1>
+
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Buscar productos..."
+              className="w-full pl-10 pr-4 py-3 bg-slate-800/50 border border-slate-700 rounded-lg text-white focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+        </div>
+
+        <div className="flex-1 overflow-y-auto bg-slate-800/30 rounded-xl border border-slate-700/50 p-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+            {filteredProducts.map((product, index) => (
+              <button
+                ref={index === 0 ? productRef : undefined}
+                key={product.id}
+                onClick={() => addToCart(product)}
+                disabled={product.stock < 1}
+                className="bg-slate-800 hover:bg-slate-700 rounded-lg p-4 border border-slate-700 transition text-left"
+              >
+                <div className="aspect-square bg-slate-900 rounded-lg mb-3 flex items-center justify-center overflow-hidden">
+                  {product.image_url ? (
+                    <img
+                      src={product.image_url}
+                      alt={product.name}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <ShoppingCart className="w-8 h-8 text-slate-600" />
+                  )}
+                </div>
+
+                <h3 className="text-white font-medium truncate">
+                  {product.name}
+                </h3>
+
+                <p className="text-blue-400 font-semibold">
+                  ${product.price.toFixed(2)}
+                </p>
+
+                <p className={`text-sm ${product.stock < 10 ? 'text-orange-400' : 'text-slate-400'}`}>
+                  Stock: {product.stock}
+                </p>
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* CARRITO */}
+      {/* CARRITO */}
+      <div
+        className={`
+          fixed inset-0 z-50 bg-black/50 transition-opacity lg:static lg:bg-transparent
+          ${showCartMobile ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none lg:opacity-100 lg:pointer-events-auto'}
+        `}
+      >
+        <div
+          className={`
+            absolute bottom-0 left-0 right-0 bg-slate-800 p-6 rounded-t-2xl h-[85vh] flex flex-col
+            lg:relative lg:h-full lg:rounded-xl lg:border lg:border-slate-700/50
+            transition-transform duration-300
+            ${showCartMobile ? 'translate-y-0' : 'translate-y-full lg:translate-y-0'}
+          `}
+        >
+          {/* Botón cerrar mobile */}
+          <button
+            onClick={() => setShowCartMobile(false)}
+            className="lg:hidden text-slate-400 mb-4 text-right"
+          >
+            Cerrar
+          </button>
+
+          <div ref={cartRef} className="flex items-center gap-2 mb-4">
+            <ShoppingCart className="w-6 h-6 text-blue-400" />
+            <h2 className="text-xl font-semibold text-white">Carrito</h2>
+            <span className="ml-auto text-slate-400">{cart.length} items</span>
+          </div>
+
+          {error && (
+            <div className="bg-red-900/20 border border-red-500/50 rounded-lg p-3 mb-4">
+              <p className="text-red-400 text-sm">{error}</p>
+            </div>
+          )}
+
+          {success && (
+            <div className="bg-green-900/20 border border-green-500/50 rounded-lg p-3 mb-4 flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-green-400" />
+              <p className="text-green-400 text-sm">{success}</p>
+            </div>
+          )}
+
+          <div className="flex-1 overflow-y-auto space-y-2">
+            {cart.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-full text-slate-500">
+                <ShoppingCart className="w-12 h-12 mb-2 opacity-50" />
+                <p>Carrito vacío</p>
+              </div>
+            ) : (
+              cart.map(item => (
+                <div key={item.product_id} className="bg-slate-900/50 rounded-lg p-3 border border-slate-700/50">
+                  <div className="flex justify-between mb-2">
+                    <div>
+                      <h3 className="text-white text-sm">{item.name}</h3>
+                      <p className="text-blue-400 text-sm">${item.price.toFixed(2)}</p>
+                    </div>
+                    <button onClick={() => removeFromCart(item.product_id)}>
+                      <Trash2 className="w-4 h-4 text-red-400" />
+                    </button>
+                  </div>
+
+                  <div className="flex justify-between items-center">
+                    <div className="flex gap-2 items-center">
+                      <button onClick={() => updateQuantity(item.product_id, -1)}>
+                        <Minus className="w-4 h-4 text-white" />
+                      </button>
+                      <span className="text-white w-6 text-center">{item.quantity}</span>
+                      <button onClick={() => updateQuantity(item.product_id, 1)}>
+                        <Plus className="w-4 h-4 text-white" />
+                      </button>
+                    </div>
+                    <span className="text-white font-semibold">
+                      ${(item.price * item.quantity).toFixed(2)}
+                    </span>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+
+          <div className="border-t border-slate-700 pt-4 space-y-4">
+            <div className="flex justify-between text-lg">
+              <span className="text-slate-400">Total:</span>
+              <span className="text-white font-bold text-2xl">
+                ${total.toFixed(2)}
+              </span>
+            </div>
+
+            <div className="flex gap-2">
+              <button
+                onClick={() => setPaymentMethod('cash')}
+                className={`flex-1 p-3 rounded-lg border ${
+                  paymentMethod === 'cash'
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-slate-900 border-slate-700 text-slate-400'
+                }`}
+              >
+                <Banknote className="w-5 h-5 mx-auto mb-1" />
+                <span className="text-sm">Efectivo</span>
+              </button>
+
+              <button
+                onClick={() => setPaymentMethod('card')}
+                className={`flex-1 p-3 rounded-lg border ${
+                  paymentMethod === 'card'
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-slate-900 border-slate-700 text-slate-400'
+                }`}
+              >
+                <CreditCard className="w-5 h-5 mx-auto mb-1" />
+                <span className="text-sm">Tarjeta</span>
+              </button>
+            </div>
+
+            <button
+              ref={checkoutRef}
+              onClick={handleCheckout}
+              disabled={isLoading || cart.length === 0}
+              className="w-full bg-green-600 hover:bg-green-700 disabled:bg-slate-700 text-white py-4 rounded-lg flex items-center justify-center gap-2"
+            >
+              {isLoading ? 'Procesando...' : 'Confirmar Venta'}
+            </button>
+          </div>
+        </div>
+      </div>
+      {/* Botón flotante mobile */}
+      <div className="lg:hidden fixed bottom-6 right-6 z-50">
+        <button
+          onClick={() => setShowCartMobile(true)}
+          className="bg-blue-600 text-white rounded-full p-4 shadow-xl relative"
+        >
+          <ShoppingCart className="w-6 h-6" />
+          {cart.length > 0 && (
+            <span className="absolute -top-2 -right-2 bg-red-500 text-xs px-2 py-0.5 rounded-full">
+              {cart.length}
+            </span>
+          )}
+        </button>
+      </div>
+      <POSTour
+        productRef={productRef}
+        cartRef={cartRef}
+        checkoutRef={checkoutRef}
+        openCart={() => setShowCartMobile(true)}
+      />
+    </div>
+    
+  );
+}
+
+
+==================================================
+FILE: src\minipos\pagesPOS1.0\Sales.tsx
+==================================================
+
+import { useEffect, useState } from 'react';
+import { api } from '../lib/api';
+import {
+  Receipt,
+  CreditCard,
+  Banknote,
+  RotateCcw,
+  ChevronDown,
+  ChevronUp,
+} from 'lucide-react';
+import { useTrial } from '../trial/TrialProvider'
+
+interface SaleItem {
+  product_id: string;
+  product_name: string;
+  quantity: number;
+  price: number;
+  subtotal: number;
+}
+
+interface Sale {
+  id: string;
+  total: number;
+  payment_method: string;
+  created_at: string;
+  items: SaleItem[];
+  status?: string;
+}
+
+export default function Sales() {
+  const [sales, setSales] = useState<Sale[]>([]);
+  const [expandedSale, setExpandedSale] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [processingReturn, setProcessingReturn] = useState<string | null>(null);
+  const { trackAction } = useTrial()
+
+  useEffect(() => {
+    loadSales();
+  }, []);
+
+  const loadSales = async () => {
+    try {
+      setIsLoading(true);
+      const response = await api.getSales();
+      setSales(response);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error al cargar ventas');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleReturn = async (saleId: string) => {
+    if (!confirm('¿Está seguro de realizar esta devolución?')) {
+      return;
+    }
+
+    setProcessingReturn(saleId);
+    try {
+      await api.returnSale(saleId);
+      await loadSales();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error al procesar devolución');
+    } finally {
+      setProcessingReturn(null);
+    }
+  };
+
+  const toggleExpand = (saleId: string) => {
+    setExpandedSale(expandedSale === saleId ? null : saleId);
+  };
+
+  const formatDate = (date: string) => {
+    return new Date(date).toLocaleString('es-ES', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  };
+
+  const getPaymentIcon = (method: string) => {
+    return method === 'cash' ? (
+      <Banknote className="w-5 h-5" />
+    ) : (
+      <CreditCard className="w-5 h-5" />
+    );
+  };
+
+  const getPaymentLabel = (method: string) => {
+    return method === 'cash' ? 'Efectivo' : 'Tarjeta';
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold text-white mb-2">Historial de Ventas</h1>
+        <p className="text-slate-400">Total de ventas: {sales.length}</p>
+      </div>
+
+      {error && (
+        <div className="bg-red-900/20 border border-red-500/50 rounded-lg p-4">
+          <p className="text-red-400">{error}</p>
+        </div>
+      )}
+
+      <div className="space-y-4">
+        {sales.length === 0 ? (
+          <div className="bg-slate-800/50 backdrop-blur-xl rounded-xl border border-slate-700/50 p-12 text-center">
+            <Receipt className="w-12 h-12 text-slate-600 mx-auto mb-4" />
+            <p className="text-slate-400">No hay ventas registradas</p>
+          </div>
+        ) : (
+          sales.map((sale) => (
+            <div
+              key={sale.id}
+              className="bg-slate-800/50 backdrop-blur-xl rounded-xl border border-slate-700/50 overflow-hidden"
+            >
+              <div className="p-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="bg-blue-600/20 p-3 rounded-lg">
+                      <Receipt className="w-6 h-6 text-blue-400" />
+                    </div>
+                    <div>
+                      <p className="text-white font-semibold">
+                        ${sale.total.toFixed(2)}
+                      </p>
+                      <p className="text-slate-400 text-sm">
+                        {formatDate(sale.created_at)}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2 px-3 py-1 bg-slate-900/50 rounded-lg">
+                      {getPaymentIcon(sale.payment_method)}
+                      <span className="text-slate-300 text-sm">
+                        {getPaymentLabel(sale.payment_method)}
+                      </span>
+                    </div>
+
+                    {sale.status !== 'returned' && (
+                      <button
+                        onClick={() => handleReturn(sale.id)}
+                        disabled={processingReturn === sale.id}
+                        className="p-2 hover:bg-slate-700 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+                        title="Realizar devolución"
+                      >
+                        {processingReturn === sale.id ? (
+                          <div className="w-5 h-5 border-2 border-slate-400 border-t-transparent rounded-full animate-spin" />
+                        ) : (
+                          <RotateCcw className="w-5 h-5 text-slate-400" />
+                        )}
+                      </button>
+                    )}
+
+                    <button
+                      onClick={() => toggleExpand(sale.id)}
+                      className="p-2 hover:bg-slate-700 rounded-lg transition"
+                    >
+                      {expandedSale === sale.id ? (
+                        <ChevronUp className="w-5 h-5 text-slate-400" />
+                      ) : (
+                        <ChevronDown className="w-5 h-5 text-slate-400" />
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                {sale.status === 'returned' && (
+                  <div className="mt-3 inline-flex items-center gap-2 px-3 py-1 bg-orange-900/20 border border-orange-500/50 rounded-lg">
+                    <RotateCcw className="w-4 h-4 text-orange-400" />
+                    <span className="text-orange-400 text-sm">Devuelto</span>
+                  </div>
+                )}
+              </div>
+
+              {expandedSale === sale.id && (
+                <div className="border-t border-slate-700 bg-slate-900/30 p-4">
+                  <h3 className="text-white font-medium mb-3">Productos</h3>
+                  <div className="space-y-2">
+                    {sale.items.map((item, index) => (
+                      <div
+                        key={index}
+                        className="flex items-center justify-between p-3 bg-slate-800/50 rounded-lg"
+                      >
+                        <div className="flex-1">
+                          <p className="text-white">{item.product_name}</p>
+                          <p className="text-slate-400 text-sm">
+                            ${item.price.toFixed(2)} x {item.quantity}
+                          </p>
+                        </div>
+                        <p className="text-white font-semibold">
+                          ${item.subtotal.toFixed(2)}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="mt-4 pt-4 border-t border-slate-700 flex items-center justify-between">
+                    <span className="text-slate-400">Total</span>
+                    <span className="text-white font-bold text-xl">
+                      ${sale.total.toFixed(2)}
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  );
+}
+
+
+
+==================================================
+FILE: src\minipos\trial\DashboardTour.tsx
+==================================================
+
+import { useEffect, useState } from "react";
+import { useAuth } from "../context/AuthContext";
+
+interface Props {
+  kpiRef: React.RefObject<HTMLDivElement>;
+}
+
+export default function DashboardTour({ kpiRef }: Props) {
+
+  const { user } = useAuth();
+  const [rect, setRect] = useState<DOMRect | null>(null);
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+
+    if (!user?.trial) return;
+
+    const shown = sessionStorage.getItem("dashboard_tour");
+
+    if (!shown) {
+      setOpen(true);
+      sessionStorage.setItem("dashboard_tou","1");
+    }
+
+  }, [user]);
+
+  useEffect(() => {
+
+    if (!open) return;
+
+    const timer = setInterval(() => {
+
+      if (kpiRef.current) {
+        setRect(kpiRef.current.getBoundingClientRect());
+        clearInterval(timer);
+      }
+
+    }, 100);
+
+    return () => clearInterval(timer);
+
+  }, [open]);
+
+  if (!open || !rect) return null;
+
+  return (
+    <div className="fixed inset-0 z-[100]">
+
+      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm"/>
+
+      <div
+        className="absolute border-2 border-blue-500 rounded-xl animate-pulse"
+        style={{
+          top: rect.top - 6,
+          left: rect.left - 6,
+          width: rect.width + 12,
+          height: rect.height + 12
+        }}
+      />
+
+      <div className="absolute inset-0 flex items-center justify-center">
+
+        <div className="bg-slate-800/90 backdrop-blur-xl border border-slate-700 rounded-2xl p-8 w-[340px] text-center shadow-2xl animate-fade-in">
+
+          <h2 className="text-white text-xl font-semibold mb-4">
+            Bienvenido a CajaSimple
+          </h2>
+
+          <p className="text-slate-300 mb-4">
+            CajaSimple es una caja digital para tu negocio.
+          </p>
+
+          <p className="text-slate-400 mb-4">
+            Pruébalo en menos de un minuto:
+          </p>
+
+          <div className="text-left text-slate-300 text-sm mb-6 space-y-1">
+            <div>1. Crea un producto</div>
+            <div>2. Tócalo para venderlo</div>
+            <div>3. Mira la venta en el dashboard</div>
+          </div>
+
+          <button
+            onClick={() => setOpen(false)}
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg"
+          >
+            Empezar prueba
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+  );
+}
+
+
+==================================================
+FILE: src\minipos\trial\FirstSaleCelebration.tsx
+==================================================
+
+import { useEffect } from 'react'
+import confetti from 'canvas-confetti'
+import { useTrial } from './TrialProvider'
+
+export default function FirstSaleCelebration() {
+  const { question, closeQuestion } = useTrial()
+
+  
+
+  useEffect(() => {
+    const duration = 1500
+    const end = Date.now() + duration
+
+    const frame = () => {
+      confetti({
+        particleCount: 4,
+        angle: 60,
+        spread: 70,
+        origin: { x: 0 }
+      })
+
+      confetti({
+        particleCount: 4,
+        angle: 120,
+        spread: 70,
+        origin: { x: 1 }
+      })
+
+      if (Date.now() < end) {
+        requestAnimationFrame(frame)
+      }
+    }
+
+    frame()
+  }, [])
+  
+  if (question !== 'after_sale') return null
+
+  return (
+    <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50">
+
+      <div className="bg-slate-800 rounded-xl p-8 w-96 text-center space-y-4 border border-slate-700">
+
+        <h2 className="text-2xl font-bold text-white">
+          ¡Primera venta registrada!
+        </h2>
+
+        <p className="text-slate-300">
+          El sistema acaba de registrar tu primera venta correctamente.
+        </p>
+
+        <button
+          onClick={closeQuestion}
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg"
+        >
+          Ver Dashboard
+        </button>
+
+      </div>
+
+    </div>
+  )
+}
+
+
+==================================================
+FILE: src\minipos\trial\InventoryTour.tsx
+==================================================
+
+import { useEffect, useState } from "react";
+import { useAuth } from "../context/AuthContext";
+
+interface Props {
+  createButtonRef: React.RefObject<HTMLButtonElement>;
+  tableRef: React.RefObject<HTMLTableElement>;
+}
+
+export default function InventoryTour({
+  createButtonRef,
+  tableRef
+}: Props) {
+
+  const { user } = useAuth();
+  const [step, setStep] = useState<number | null>(null);
+  const [rect, setRect] = useState<DOMRect | null>(null);
+
+  useEffect(() => {
+
+    if (!user?.trial) return;
+
+    const shown = sessionStorage.getItem("inventory_tour");
+
+    if (!shown) {
+      setStep(0);
+      sessionStorage.setItem("inventory_tour","1");
+    }
+
+  }, [user]);
+
+  useEffect(() => {
+
+    if (step === null) return;
+
+    setRect(null);
+
+    const timer = setInterval(() => {
+
+      let el: HTMLElement | null = null;
+
+      if (step === 0) el = createButtonRef.current;
+      if (step === 1) el = tableRef.current;
+
+      if (el) {
+        setRect(el.getBoundingClientRect());
+        clearInterval(timer);
+      }
+
+    }, 100);
+
+    return () => clearInterval(timer);
+
+  }, [step]);
+
+  if (step === null || !rect) return null;
+
+  const messages = [
+    "Empieza creando un producto.\nSolo necesitas nombre, precio y stock.",
+    "Aquí verás los productos que registres.\nLuego podrás venderlos desde el POS."
+  ];
+
+  return (
+    <div className="fixed inset-0 z-[100]">
+
+      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm"/>
+
+      <div
+        className="absolute border-2 border-blue-500 rounded-xl animate-pulse"
+        style={{
+          top: rect.top - 6,
+          left: rect.left - 6,
+          width: rect.width + 12,
+          height: rect.height + 12
+        }}
+      />
+
+      <div className="absolute inset-0 flex items-center justify-center">
+
+        <div className="bg-slate-800/90 backdrop-blur-xl border border-slate-700 rounded-2xl p-8 w-[340px] text-center shadow-2xl animate-fade-in">
+          <p className="text-xs text-slate-400 mb-2">
+          Paso {step + 1} de {messages.length}
+          </p>
+          <p className="text-slate-200 mb-6">
+            {messages[step]}
+          </p>
+
+          <button
+            onClick={() => {
+
+              if (step === 1) {
+                setStep(null)
+              } else {
+                setStep(step + 1)
+              }
+
+            }}
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg"
+          >
+            {step === 1 ? "Entendido" : "Siguiente"}
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+  );
+}
+
+
+==================================================
+FILE: src\minipos\trial\POSTour.tsx
+==================================================
+
+import { useEffect, useState } from 'react'
+import { useAuth } from '../context/AuthContext'
+
+interface Props {
+  productRef: React.RefObject<HTMLButtonElement>
+  cartRef: React.RefObject<HTMLDivElement>
+  checkoutRef: React.RefObject<HTMLButtonElement>
+  openCart?: () => void
+}
+
+export default function POSTour({
+  productRef,
+  cartRef,
+  checkoutRef,
+  openCart
+}: Props) {
+
+  const { user } = useAuth()
+
+  const [step, setStep] = useState<number | null>(null)
+  const [rect, setRect] = useState<DOMRect | null>(null)
+
+  useEffect(() => {
+
+    if (!user?.trial) return
+
+    const shown = sessionStorage.getItem('pos_tour')
+
+    if (!shown) {
+      setStep(0)
+      sessionStorage.setItem('pos_tour','1')
+    }
+
+  }, [user])
+
+  useEffect(() => {
+
+    if (step === null) return
+
+    setRect(null)
+
+    const timer = setInterval(() => {
+
+      let el: HTMLElement | null = null
+
+      if (step === 0) el = productRef.current
+      if (step === 1) el = cartRef.current
+      if (step === 2) el = checkoutRef.current
+
+      if (el) {
+
+        const r = el.getBoundingClientRect()
+
+        if (r.width > 0 && r.height > 0) {
+          setRect(r)
+          clearInterval(timer)
+        }
+
+      }
+
+    }, 100)
+
+    return () => clearInterval(timer)
+
+  }, [step, productRef, cartRef, checkoutRef])
+
+  if (step === null) return null
+  if (!rect) return null
+
+  const messages = [
+    "Empieza tocando un producto.\nCada toque lo agrega al carrito.",
+    "Aquí verás los productos que estás vendiendo.",
+    "Cuando todo esté listo confirma la venta aquí."
+  ]
+
+  return (
+    <div className="fixed inset-0 z-[100]">
+
+      {/* overlay */}
+      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm"/>
+
+      {/* highlight */}
+      <div
+        className="absolute border-2 border-blue-500 rounded-xl shadow-lg animate-pulse pointer-events-none"
+        style={{
+          top: rect.top - 6,
+          left: rect.left - 6,
+          width: rect.width + 12,
+          height: rect.height + 12
+        }}
+      />
+
+      {/* CENTER CARD */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+
+
+        <div className="pointer-events-auto bg-slate-800/90 backdrop-blur-xl border border-slate-700 rounded-2xl p-8 w-[340px] text-center shadow-2xl animate-fade-in">
+          <p className="text-xs text-slate-400 mb-2">
+          Paso {step + 1} de {messages.length}
+          </p>
+          <div className="w-12 h-12 bg-blue-600/20 rounded-xl flex items-center justify-center mx-auto mb-4">
+            <div className="w-6 h-6 bg-blue-500 rounded-md animate-pulse"/>
+          </div>
+
+          <p className="text-slate-200 text-sm leading-relaxed mb-6">
+            {messages[step]}
+          </p>
+
+          <button
+            onClick={() => {
+
+              if (step === 0 && openCart) {
+
+                openCart()
+
+                setTimeout(() => {
+                  setStep(1)
+                }, 250)
+
+                return
+              }
+
+              if (step === 2) {
+                setStep(null)
+              } else {
+                setStep(step + 1)
+              }
+
+            }}
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg transition"
+          >
+            {step === 2 ? "Entendido" : "Siguiente"}
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+  )
+}
+
+
+==================================================
+FILE: src\minipos\trial\TourEngine.tsx
+==================================================
+
+import { useEffect, useState } from "react"
+import { useAuth } from "../context/AuthContext"
+
+interface TourStep {
+  ref: React.RefObject<HTMLElement>
+  message: string
+  onEnter?: () => void
+}
+
+interface Props {
+  steps: TourStep[]
+  storageKey: string
+}
+
+export default function TourEngine({ steps, storageKey }: Props) {
+
+  const { user } = useAuth()
+
+  const [step, setStep] = useState<number | null>(null)
+  const [rect, setRect] = useState<DOMRect | null>(null)
+
+  // iniciar tour
+  useEffect(() => {
+
+    if (!user?.trial) return
+
+    const shown = sessionStorage.getItem(storageKey)
+
+    if (!shown) {
+      setStep(0)
+      sessionStorage.setItem(storageKey, "1")
+    }
+
+  }, [user, storageKey])
+
+  // detectar elemento
+  useEffect(() => {
+
+    if (step === null) return
+
+    const stepData = steps[step]
+
+    stepData?.onEnter?.()
+
+    setRect(null)
+
+    const timer = setInterval(() => {
+
+      const el = stepData?.ref.current
+
+      if (el) {
+
+        const r = el.getBoundingClientRect()
+
+        if (r.width > 0 && r.height > 0) {
+          setRect(r)
+          clearInterval(timer)
+        }
+
+      }
+
+    }, 100)
+
+    return () => clearInterval(timer)
+
+  }, [step, steps])
+
+  if (step === null || !rect) return null
+
+  const next = () => {
+
+    if (step === steps.length - 1) {
+      setStep(null)
+      return
+    }
+
+    setStep(step + 1)
+
+  }
+
+  return (
+    <div className="fixed inset-0 z-[100]">
+
+      {/* overlay */}
+      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm"/>
+
+      {/* highlight */}
+      <div
+        className="absolute border-2 border-blue-500 rounded-xl shadow-lg animate-pulse pointer-events-none"
+        style={{
+          top: rect.top - 6,
+          left: rect.left - 6,
+          width: rect.width + 12,
+          height: rect.height + 12
+        }}
+      />
+
+      {/* card central */}
+      <div className="absolute inset-0 flex items-center justify-center">
+
+        <div className="bg-slate-800/90 backdrop-blur-xl border border-slate-700 rounded-2xl p-8 w-[340px] text-center shadow-2xl animate-fade-in">
+
+          <div className="w-12 h-12 bg-blue-600/20 rounded-xl flex items-center justify-center mx-auto mb-4">
+            <div className="w-6 h-6 bg-blue-500 rounded-md animate-pulse"/>
+          </div>
+
+          <p className="text-slate-200 text-sm leading-relaxed mb-6">
+            {steps[step].message}
+          </p>
+
+          <button
+            onClick={next}
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg transition"
+          >
+            {step === steps.length - 1 ? "Entendido" : "Siguiente"}
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+  )
+}
+
+
+==================================================
+FILE: src\minipos\trial\TrialOverlay.tsx
+==================================================
+
+import { useState } from 'react'
+import { useTrial } from './TrialProvider'
+import { useAuth } from '../context/AuthContext'
+import { MessageCircle, X } from 'lucide-react'
+import { Link } from 'react-router-dom'
+
+export default function TrialOverlay() {
+  const { user } = useAuth()
+  const { currentStep, completedActions } = useTrial()
+
+  const [open, setOpen] = useState(false)
+
+  if (!user?.trial) return null
+
+  const renderContent = () => {
+    switch (currentStep) {
+      case 'create_product':
+        return {
+          title: 'Paso 1',
+          text: 'Crea tu primer producto. Solo toma unos segundos.',
+          button: 'Ir a Inventario',
+          link: null
+        }
+
+      case 'make_sale':
+        return {
+          title: 'Paso 2',
+          text: 'Ahora registra una venta. Toca el producto en el POS.',
+          button: 'Ir al Punto de Venta',
+          link: null
+        }
+
+      case 'view_dashboard':
+        return {
+          title: 'Paso 3',
+          text: 'Perfecto. Tu venta ya se registró. Puedes verla en el dashboard.',
+          button: 'Ver Dashboard',
+          link: null
+        }
+
+      case 'conversion':
+        return {
+          title: 'Listo',
+          text: 'Ya probaste lo esencial del sistema. Si quieres usar CajaSimple en tu negocio, escríbenos por WhatsApp y te ayudamos a configurarlo.',
+          button: 'Crear cuenta',
+          link: '/pos'
+        }
+    }
+  }
+
+  const content = renderContent()
+
+  return (
+    <>
+      {/* BOTON */}
+      <div className="fixed bottom-24 right-6 lg:bottom-6 z-50">
+
+        <button
+          onClick={() => setOpen(!open)}
+          className="relative bg-blue-600 hover:bg-blue-700 text-white rounded-full p-4 shadow-xl"
+        >
+          <MessageCircle className="w-6 h-6" />
+
+          <span className="absolute -top-1 -right-1 flex h-3 w-3">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+          </span>
+        </button>
+
+      </div>
+
+      {open && (
+        <div className="fixed bottom-20 right-6 z-50 w-80 bg-slate-800 border border-slate-700 rounded-xl shadow-2xl p-5">
+
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-white font-semibold">Progreso de prueba</h3>
+
+            <button
+              onClick={() => setOpen(false)}
+              className="text-slate-400 hover:text-white"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+
+          {/* progreso */}
+
+          <div className="text-sm space-y-1 mb-4 text-slate-300">
+            <div>
+              {completedActions.has('created_product') ? '✔' : '⬜'} Crear producto
+            </div>
+
+            <div>
+              {completedActions.has('completed_sale') ? '✔' : '⬜'} Registrar venta
+            </div>
+
+            <div>
+              {completedActions.has('visited_dashboard') ? '✔' : '⬜'} Ver dashboard
+            </div>
+          </div>
+
+          <div className="border-t border-slate-700 pt-4">
+
+            <p className="text-blue-400 text-sm font-semibold mb-1">
+              {content.title}
+            </p>
+
+            <p className="text-slate-300 text-sm mb-4">
+              {content.text}
+            </p>
+
+            {content.link && (
+              <a
+                href="https://wa.me/541169174577"
+                target="_blank"
+                className="w-full block text-center bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg"
+              >
+                Hablar por WhatsApp
+              </a>
+            )}
+
+          </div>
+
+        </div>
+      )}
+    </>
+  )
+}
+
+
+==================================================
+FILE: src\minipos\trial\TrialProvider.tsx
+==================================================
+
+import { createContext, useContext, useState, useMemo, useEffect } from 'react'
+import { useAuth } from '../context/AuthContext'
+
+type TrialAction =
+  | 'visited_inventory'
+  | 'created_product'
+  | 'completed_sale'
+  | 'visited_dashboard'
+
+type TrialStep =
+  | 'create_product'
+  | 'make_sale'
+  | 'view_dashboard'
+  | 'conversion'
+
+type TrialQuestion =
+  | 'after_product'
+  | 'after_sale'
+  | null
+
+interface TrialContextType {
+  completedActions: Set<TrialAction>
+  trackAction: (action: TrialAction) => void
+  currentStep: TrialStep
+  question: TrialQuestion
+  closeQuestion: () => void
+}
+
+const TrialContext = createContext<TrialContextType | undefined>(undefined)
+
+export function TrialProvider({ children }: { children: React.ReactNode }) {
+  const { user } = useAuth()
+
+  const [completedActions, setCompletedActions] = useState<Set<TrialAction>>(
+    () => new Set()
+  )
+
+  const [question, setQuestion] = useState<TrialQuestion>(null)
+
+  const [askedQuestions, setAskedQuestions] = useState<Set<TrialQuestion>>(
+    () => new Set()
+  )
+
+  const trackAction = (action: TrialAction) => {
+    if (!user?.trial) return
+
+    setCompletedActions(prev => {
+      const updated = new Set(prev)
+      updated.add(action)
+      return updated
+    })
+  }
+
+  const closeQuestion = () => {
+    setQuestion(null)
+  }
+
+  const randomDelay = (min: number, max: number) =>
+    Math.floor(Math.random() * (max - min) + min)
+
+  useEffect(() => {
+
+    if (!user?.trial) return
+
+    const timers: NodeJS.Timeout[] = []
+
+    // Pregunta 1 (30-60s)
+    timers.push(
+      setTimeout(() => {
+
+        if (!askedQuestions.has('after_product')) {
+
+          setQuestion('after_product')
+
+          setAskedQuestions(prev => {
+            const updated = new Set(prev)
+            updated.add('after_product')
+            return updated
+          })
+
+        }
+
+      }, randomDelay(30000, 60000))
+    )
+
+    // Pregunta 2 (90-120s)
+    timers.push(
+      setTimeout(() => {
+
+        if (!askedQuestions.has('after_sale')) {
+
+          setQuestion('after_sale')
+
+          setAskedQuestions(prev => {
+            const updated = new Set(prev)
+            updated.add('after_sale')
+            return updated
+          })
+
+        }
+
+      }, randomDelay(90000, 120000))
+    )
+
+    return () => timers.forEach(clearTimeout)
+
+  }, [user])
+
+  const currentStep: TrialStep = useMemo(() => {
+    if (!completedActions.has('created_product')) return 'create_product'
+    if (!completedActions.has('completed_sale')) return 'make_sale'
+    if (!completedActions.has('visited_dashboard')) return 'view_dashboard'
+    return 'conversion'
+  }, [completedActions])
+
+  return (
+    <TrialContext.Provider
+      value={{
+        completedActions,
+        trackAction,
+        currentStep,
+        question,
+        closeQuestion
+      }}
+    >
+      {children}
+    </TrialContext.Provider>
+  )
+}
+
+export function useTrial() {
+  const ctx = useContext(TrialContext)
+  if (!ctx) throw new Error('useTrial must be used inside TrialProvider')
+  return ctx
+}
+
+
+==================================================
+FILE: src\minipos\trial\TrialQuestion.tsx
+==================================================
+
+import { useTrial } from './TrialProvider'
+import { api } from '../lib/api'
+
+const WHATSAPP_LINK =
+  "https://wa.me/541169174577?text=Hola%20quiero%20usar%20CajaSimple"
+
+export default function TrialQuestion() {
+
+  const { question, closeQuestion } = useTrial()
+
+  const sendFeedback = async (
+    questionName: string,
+    answer: string,
+    screen: string
+  ) => {
+
+    try {
+
+      const start = Number(sessionStorage.getItem("trial_start") || Date.now())
+      const timeInApp = Math.floor((Date.now() - start) / 1000)
+
+      await api.sendTrialFeedback({
+        meta: {
+          question: questionName,
+          answer: answer,
+          screen: screen,
+          time_in_app: timeInApp
+        }
+      })
+
+    } catch (err) {
+      console.error("trial feedback error", err)
+    }
+
+    closeQuestion()
+  }
+
+  if (!question) return null
+
+
+  /* ============================= */
+  /* BUSINESS TYPE */
+  /* ============================= */
+
+  if (question === "after_product") {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50">
+
+        <div className="bg-slate-800 p-6 rounded-xl w-80 space-y-4">
+
+          <h3 className="text-white font-semibold">
+            ¿En qué tipo de negocio usarías CajaSimple?
+          </h3>
+
+          <p className="text-slate-400 text-sm">
+            Esto nos ayuda a adaptar mejor el sistema.
+          </p>
+
+          {[
+            "Tienda",
+            "Ropa",
+            "Café o restaurante",
+            "Ferretería",
+            "Otro"
+          ].map(opt => (
+            <button
+              key={opt}
+              onClick={() => sendFeedback("business_type", opt, "inventory")}
+              className="w-full bg-slate-700 hover:bg-slate-600 text-white py-2 rounded"
+            >
+              {opt}
+            </button>
+          ))}
+
+          <a
+            href={WHATSAPP_LINK}
+            target="_blank"
+            className="block text-center bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg"
+          >
+            Hablar por WhatsApp
+          </a>
+
+        </div>
+      </div>
+    )
+  }
+
+
+  /* ============================= */
+  /* EASY PART */
+  /* ============================= */
+
+  if (question === "after_sale") {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50">
+
+        <div className="bg-slate-800 p-6 rounded-xl w-80 text-center space-y-4">
+
+          <h3 className="text-white font-semibold">
+            ¿Qué fue lo más fácil de entender hasta ahora?
+          </h3>
+
+          <p className="text-slate-400 text-sm">
+            Tu opinión nos ayuda a mejorar la demo.
+          </p>
+
+          {[
+            "Registrar una venta",
+            "Crear productos",
+            "Usar el carrito",
+            "Ver el dashboard",
+            "Todo fue claro"
+          ].map(opt => (
+            <button
+              key={opt}
+              onClick={() => sendFeedback("easy_part", opt, "pos")}
+              className="w-full bg-slate-700 hover:bg-slate-600 text-white py-2 rounded"
+            >
+              {opt}
+            </button>
+          ))}
+
+          <a
+            href={WHATSAPP_LINK}
+            target="_blank"
+            className="block text-center bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg"
+          >
+            Usarlo en mi negocio
+          </a>
+
+        </div>
+      </div>
+    )
+  }
+
+
+  /* ============================= */
+  /* INVENTORY SIZE */
+  /* ============================= */
+
+  if (question === "after_dashboard") {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50">
+
+        <div className="bg-slate-800 p-6 rounded-xl w-80 text-center space-y-4">
+
+          <h3 className="text-white font-semibold">
+            ¿Cuántos productos tiene tu negocio?
+          </h3>
+
+          <p className="text-slate-400 text-sm">
+            Esto nos ayuda a entender qué tipo de negocios usan CajaSimple.
+          </p>
+
+          {[
+            "1-20 productos",
+            "20-100 productos",
+            "100-500 productos",
+            "500+ productos"
+          ].map(opt => (
+            <button
+              key={opt}
+              onClick={() => sendFeedback("inventory_size", opt, "dashboard")}
+              className="w-full bg-slate-700 hover:bg-slate-600 text-white py-2 rounded"
+            >
+              {opt}
+            </button>
+          ))}
+
+          <a
+            href={WHATSAPP_LINK}
+            target="_blank"
+            className="block text-center bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg"
+          >
+            Hablar por WhatsApp
+          </a>
+
+        </div>
+      </div>
+    )
+  }
+
+  return null
+}
+
