@@ -6,7 +6,7 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const SRC_DIR = path.join(__dirname, "src");
+const SRC_DIR = path.join(__dirname, "src" );
 const OUTPUT_FILE = path.join(__dirname, "project_dump.txt");
 
 function getAllJsFiles(dir) {

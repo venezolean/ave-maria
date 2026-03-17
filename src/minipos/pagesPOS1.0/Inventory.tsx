@@ -9,9 +9,11 @@ import {
   History,
   X,
   Upload,
+  ArrowDownZA,
+  ArrowDown,
 } from 'lucide-react'
 import { useTrial } from '../trial/TrialProvider'
-import InventoryTour from "../trial/InventoryTour";
+
 
 interface Product {
   id: string
@@ -50,7 +52,6 @@ export default function Inventory() {
   const [showAdjust, setShowAdjust] = useState(false)
   useEffect(() => {
     loadProducts()
-    trackAction('visited_inventory')
   }, [])
 
 const loadProducts = async () => {
@@ -145,48 +146,55 @@ const loadProducts = async () => {
               <td>{p.stock}</td>
               <td>${p.stock_value.toFixed(2)}</td>
               <td>{p.movements_count}</td>
-              <td className="flex gap-2">
-                <button
-                  onClick={() => {
-                    setSelectedProduct(p)
-                    setShowMovements(true)
-                    loadMovements(p.id)
-                  }}
-                >
-                  <History className="w-4 h-4" />
-                </button>
+<td>
+  <div className="flex flex-wrap gap-2 justify-end sm:justify-start">
+    
+    <button
+      className="p-2 bg-slate-700 rounded-md"
+      onClick={() => {
+        setSelectedProduct(p)
+        setShowMovements(true)
+        loadMovements(p.id)
+      }}
+    >
+      <History className="w-4 h-4" />
+    </button>
 
-                {user?.tipo_usuario === 'admin' && (
-                  <>
-                    <button
-                      onClick={() => {
-                        setSelectedProduct(p)
-                        setShowEdit(true)
-                      }}
-                    >
-                      <Edit2 className="w-4 h-4" />
-                    </button>
+    {user?.tipo_usuario === 'admin' && (
+      <>
+        <button
+          className="p-2 bg-slate-700 rounded-md"
+          onClick={() => {
+            setSelectedProduct(p)
+            setShowEdit(true)
+          }}
+        >
+          <Edit2 className="w-4 h-4" />
+        </button>
 
-                    <button
-                      onClick={() => {
-                        setSelectedProduct(p)
-                        setShowPurchase(true)
-                      }}
-                    >
-                      <Plus className="w-4 h-4 text-green-400" />
-                    </button>
+        <button
+          className="p-2 bg-green-600/20 rounded-md"
+          onClick={() => {
+            setSelectedProduct(p)
+            setShowPurchase(true)
+          }}
+        >
+          <Plus className="w-4 h-4 text-green-400" />
+        </button>
 
-                    <button
-                      onClick={() => {
-                        setSelectedProduct(p)
-                        setShowAdjust(true)
-                      }}
-                    >
-                      <Edit2 className="w-4 h-4 text-orange-400" />
-                    </button>
-                  </>
-                )}
-              </td>
+        <button
+          className="p-2 bg-orange-600/20 rounded-md"
+          onClick={() => {
+            setSelectedProduct(p)
+            setShowAdjust(true)
+          }}
+        >
+          <Edit2 className="w-4 h-4 text-orange-400" />
+        </button>
+      </>
+    )}
+  </div>
+</td>
             </tr>
           ))}
         </tbody>
@@ -211,10 +219,6 @@ const loadProducts = async () => {
           onSuccess={loadProducts}
         />
       )}
-      <InventoryTour
-        createButtonRef={createButtonRef}
-        tableRef={tableRef}
-      />
       {showMovements && selectedProduct && (
         <MovementsModal
           product={selectedProduct}

@@ -43,7 +43,22 @@ export default function Sales() {
     try {
       setIsLoading(true);
       const response = await api.getSales();
-      setSales(response);
+
+      // 🔒 normalización ligera (sin cambiar estructura)
+      const safe = response.map((s: any) => ({
+        ...s,
+        id: String(s.id),
+        total: Number(s.total ?? 0),
+        items: (s.items ?? []).map((i: any) => ({
+          ...i,
+          price: Number(i.price ?? 0),
+          quantity: Number(i.quantity ?? 0),
+          subtotal: Number(i.subtotal ?? i.price * i.quantity ?? 0),
+        }))
+      }));
+
+      setSales(safe);
+
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error al cargar ventas');
     } finally {
@@ -67,9 +82,10 @@ export default function Sales() {
     }
   };
 
-  const toggleExpand = (saleId: string) => {
-    setExpandedSale(expandedSale === saleId ? null : saleId);
-  };
+  const toggleExpand = (saleId: string | number) => {
+    const id = String(saleId)
+    setExpandedSale(prev => (prev === id ? null : id))
+  }
 
   const formatDate = (date: string) => {
     return new Date(date).toLocaleString('es-ES', {
@@ -126,6 +142,7 @@ export default function Sales() {
               key={sale.id}
               className="bg-slate-800/50 backdrop-blur-xl rounded-xl border border-slate-700/50 overflow-hidden"
             >
+
               <div className="p-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
@@ -134,7 +151,7 @@ export default function Sales() {
                     </div>
                     <div>
                       <p className="text-white font-semibold">
-                        ${sale.total.toFixed(2)}
+                        ${(sale.total ?? 0).toFixed(2)}
                       </p>
                       <p className="text-slate-400 text-sm">
                         {formatDate(sale.created_at)}
@@ -169,7 +186,7 @@ export default function Sales() {
                       onClick={() => toggleExpand(sale.id)}
                       className="p-2 hover:bg-slate-700 rounded-lg transition"
                     >
-                      {expandedSale === sale.id ? (
+                      {expandedSale === String(sale.id) ? (
                         <ChevronUp className="w-5 h-5 text-slate-400" />
                       ) : (
                         <ChevronDown className="w-5 h-5 text-slate-400" />
@@ -186,7 +203,7 @@ export default function Sales() {
                 )}
               </div>
 
-              {expandedSale === sale.id && (
+              {expandedSale === String(sale.id) && (
                 <div className="border-t border-slate-700 bg-slate-900/30 p-4">
                   <h3 className="text-white font-medium mb-3">Productos</h3>
                   <div className="space-y-2">
@@ -198,11 +215,11 @@ export default function Sales() {
                         <div className="flex-1">
                           <p className="text-white">{item.product_name}</p>
                           <p className="text-slate-400 text-sm">
-                            ${item.price.toFixed(2)} x {item.quantity}
+                            ${(item.price ?? 0).toFixed(2)} x {item.quantity ?? 0}
                           </p>
                         </div>
                         <p className="text-white font-semibold">
-                          ${item.subtotal.toFixed(2)}
+                          ${(item.subtotal ?? 0).toFixed(2)}
                         </p>
                       </div>
                     ))}
@@ -211,11 +228,12 @@ export default function Sales() {
                   <div className="mt-4 pt-4 border-t border-slate-700 flex items-center justify-between">
                     <span className="text-slate-400">Total</span>
                     <span className="text-white font-bold text-xl">
-                      ${sale.total.toFixed(2)}
+                      ${(sale.total ?? 0).toFixed(2)}
                     </span>
                   </div>
                 </div>
               )}
+
             </div>
           ))
         )}

@@ -8,7 +8,7 @@ import {
   RefreshCw
 } from 'lucide-react';
 import { useTrial } from '../trial/TrialProvider'
-import DashboardTour from "../trial/DashboardTour";
+
 
 interface DashboardData {
   today: {
@@ -184,7 +184,7 @@ export default function Dashboard() {
           )}
         </div>
       </div>
-      <DashboardTour kpiRef={kpiRef} />
+
     </div>
   );
 }

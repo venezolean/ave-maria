@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import { ReactNode, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import {
   LayoutDashboard,
@@ -11,8 +11,11 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 import TrialOverlay from '../trial/TrialOverlay';
-import TrialQuestion from '../trial/TrialQuestion'
-import FirstSaleCelebration from '../trial/FirstSaleCelebration';
+import FirstSaleCelebration from '../trial/FirstSaleModal';
+import WelcomeModal from '../trial/WelcomeModal';
+import AfterProductModal from '../trial/AfterProductModal';
+import { useTrial } from '../trial/TrialProvider';
+import { useNavigate } from 'react-router-dom';
 
 
 interface LayoutProps {
@@ -24,6 +27,11 @@ interface LayoutProps {
 export default function Layout({ children, currentPage, onNavigate }: LayoutProps) {
   const { user, logout } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const navigate = useNavigate()
+
+
+
+
 
   const navItems = [
     { id: 'dashboard' as const, label: 'Dashboard', icon: LayoutDashboard },
@@ -48,7 +56,7 @@ export default function Layout({ children, currentPage, onNavigate }: LayoutProp
                 <div className="bg-blue-600 p-2 rounded-lg">
                   <ShoppingCart className="w-6 h-6 text-white" />
                 </div>
-                <span className="text-white font-bold text-xl">POS System</span>
+                <span className="text-white font-bold text-xl">CajaSimple</span>
               </div>
 
               <div className="hidden md:flex items-center gap-2">
@@ -92,6 +100,17 @@ export default function Layout({ children, currentPage, onNavigate }: LayoutProp
                   </p>
                 </div>
               </div>
+                {user?.trial === true && (
+                  <button
+                        onClick={() => {
+                          logout()
+                          window.location.href = '/pos'
+                        }}
+                    className="bg-cyan-500 text-black px-4 py-2 rounded"
+                  >
+                    Guardar negocio
+                  </button>
+                )}
 
               <button
                 onClick={handleLogout}
@@ -174,9 +193,9 @@ export default function Layout({ children, currentPage, onNavigate }: LayoutProp
         {children}
         
       </main>
-      
+      <AfterProductModal />
+      <WelcomeModal />
       <TrialOverlay />
-      <TrialQuestion />
       <FirstSaleCelebration />
     </div>
   );

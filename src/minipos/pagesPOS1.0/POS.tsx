@@ -11,7 +11,7 @@ import {
   CheckCircle2,
 } from 'lucide-react';
 import { useTrial } from '../trial/TrialProvider'
-import POSTour from '../trial/POSTour'
+
 
 interface Product {
   id: string;
@@ -386,12 +386,6 @@ console.log("NORMALIZED PRODUCTS:", normalized);
           )}
         </button>
       </div>
-      <POSTour
-        productRef={productRef}
-        cartRef={cartRef}
-        checkoutRef={checkoutRef}
-        openCart={() => setShowCartMobile(true)}
-      />
     </div>
     
   );
