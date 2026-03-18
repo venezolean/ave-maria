@@ -42,6 +42,11 @@ export default function Hero() {
             Empezar a vender ahora
             <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
           </Link >
+          
+            <div className="text-sm text-slate-400">
+              — o —
+            </div>
+          
           <p className="text-center text-sm text-slate-400 mb-4">
             ¿Ya tienes tu negocio creado?{" "}
             <Link to="/pos">
