@@ -11,18 +11,18 @@ export default function FinalCTA() {
       <div className="relative max-w-4xl mx-auto text-center">
         <div className="bg-gradient-to-br from-gray-800/40 to-gray-900/40 backdrop-blur-sm border border-gray-700/50 rounded-3xl p-12 sm:p-16 shadow-2xl">
           <h2 className="text-4xl sm:text-5xl font-bold mb-6 bg-gradient-to-r from-white via-blue-100 to-white bg-clip-text text-transparent">
-            Prueba el POS ahora mismo
+            Empieza a controlar tu negocio hoy
           </h2>
 
           <p className="text-xl text-gray-400 mb-10 max-w-2xl mx-auto">
-            Accede a la demo y explora el sistema en minutos.
+            No necesitas capacitación. En minutos ya estás vendiendo.
           </p>
 
           <Link 
             to="/pos"
-            className="group inline-flex items-center gap-3 px-10 py-5 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 rounded-full text-xl font-semibold transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/50"
+            className="group inline-flex items-center gap-3 px-10 py-5 bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 rounded-full text-xl font-semibold transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/50"
           >
-            Probar POS ahora
+            Entrar al sistema ahora
             <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
           </Link >
         </div>

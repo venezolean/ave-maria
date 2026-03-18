@@ -257,7 +257,7 @@ console.log("NORMALIZED PRODUCTS:", normalized);
         <div
           className={`
             absolute bottom-0 left-0 right-0 bg-slate-800 p-6 rounded-t-2xl h-[85vh] flex flex-col
-            lg:relative lg:h-full lg:rounded-xl lg:border lg:border-slate-700/50
+            lg:relative lg:h-[calc(100vh-6rem)] lg:rounded-xl lg:border lg:border-slate-700/50
             transition-transform duration-300
             ${showCartMobile ? 'translate-y-0' : 'translate-y-full lg:translate-y-0'}
           `}

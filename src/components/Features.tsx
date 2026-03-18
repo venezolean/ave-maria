@@ -4,23 +4,23 @@ import { useEffect, useRef, useState } from 'react';
 const features = [
   {
     icon: Zap,
-    title: 'Ventas rápidas',
-    description: 'Registra ventas en segundos desde una interfaz simple.',
+    title: 'Vende sin errores',
+    description: 'Evita equivocaciones en caja y registra cada venta correctamente.',
   },
   {
     icon: Package,
-    title: 'Control de inventario',
-    description: 'Administra tus productos y controla el stock fácilmente.',
+    title: 'Nunca te quedes sin stock',
+    description: 'Sabe exactamente qué productos te faltan antes de que sea tarde.',
   },
   {
     icon: BarChart3,
-    title: 'Dashboard claro',
-    description: 'Visualiza ventas y movimientos en tiempo real.',
+    title: 'Sabe cuánto ganas hoy',
+    description: 'Mira tus ventas en tiempo real sin hacer cuentas.',
   },
   {
     icon: Sparkles,
-    title: 'Gestión simple',
-    description: 'Diseñado para negocios pequeños que necesitan algo rápido y claro.',
+    title: 'Todo en una sola pantalla',
+    description: 'Sin sistemas complicados ni capacitación.',
   },
 ];
 

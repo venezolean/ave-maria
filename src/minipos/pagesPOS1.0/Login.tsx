@@ -232,8 +232,8 @@ export default function Login() {
           >
 
             {mode === "login"
-              ? "Crear una cuenta"
-              : "Ya tengo cuenta"}
+              ? "¿Es tu primera vez? Crea tu cuenta aqui"
+              : "¿Ya tienes cuenta? Iniciar sesión"}
 
           </button>
 
@@ -253,7 +253,7 @@ export default function Login() {
             }}
             className="w-full mt-4 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 rounded-lg"
           >
-            Probar Gratis 30 Minutos
+            Entrar como prueba (sin cuenta)
           </button>
 
         </div>

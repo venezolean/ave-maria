@@ -4,18 +4,18 @@ import { useEffect, useRef, useState } from 'react';
 const steps = [
   {
     icon: MousePointer,
-    title: 'Crea un producto',
-    description: 'Deja a la IA organizar datos',
+    title: 'Agrega tu producto',
+    description: 'Nombre, precio y listo.',
   },
   {
     icon: Search,
-    title: 'Tócalo para vender',
-    description: 'Descubre lo facil que puedes ser',
+    title: 'Toca y vende',
+    description: 'Selecciona el producto y cobra en segundos.',
   },
   {
     icon: Rocket,
-    title: 'Mira cuánto vendiste hoy',
-    description: 'Listo para usar de inmediato',
+    title: 'Mira tu negocio',
+    description: 'Ventas, stock y movimientos en tiempo real.',
   },
 ];
 

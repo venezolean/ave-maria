@@ -179,7 +179,7 @@ const loadProducts = async () => {
             setShowPurchase(true)
           }}
         >
-          <Plus className="w-4 h-4 text-green-400" />
+          <Plus className="w-4 h-4 text-blue-400" />
         </button>
 
         <button
@@ -189,7 +189,7 @@ const loadProducts = async () => {
             setShowAdjust(true)
           }}
         >
-          <Edit2 className="w-4 h-4 text-orange-400" />
+          <History className="w-4 h-4 text-orange-400" />
         </button>
       </>
     )}

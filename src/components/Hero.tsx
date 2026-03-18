@@ -21,14 +21,15 @@ export default function Hero() {
       <div className="relative z-10 max-w-7xl mx-auto text-center">
         <div className={`transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
           <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight mb-6 bg-gradient-to-r from-white via-blue-100 to-white bg-clip-text text-transparent leading-tight">
-            Controla ventas e inventario<br />de tu negocio en segundos
+            Deja de perder plata en tu negocio<br />
+            Controla ventas y stock en tiempo real
           </h1>
         </div>
 
         <div className={`transition-all duration-1000 delay-200 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
           <p className="text-xl sm:text-2xl text-gray-400 mb-12 max-w-3xl mx-auto font-light">
-            CajaSimple Registra ventas, controla stock y ve cuánto vendes hoy.
-            Todo desde una sola pantalla.
+            Registra ventas en segundos, evita errores de caja y sabe exactamente cuánto vendes hoy.
+            Sin sistemas complicados.
           </p>
           
         </div>
@@ -36,12 +37,21 @@ export default function Hero() {
         <div className={`transition-all duration-1000 delay-300 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
           <Link 
             to="/pos?trial=1"
-            className="group inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 rounded-full text-lg font-semibold transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/50 animate-bounce-subtle"
+            className="group inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 rounded-full text-lg font-semibold transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/50 animate-bounce-subtle"
           >
-            Probar demo ahora
+            Empezar a vender ahora
             <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
           </Link >
+          <p className="text-center text-sm text-slate-400 mb-4">
+            ¿Ya tienes tu negocio creado?{" "}
+            <Link to="/pos">
+              <span className="text-blue-400 font-semibold">
+                Entrar a mi cuenta
+              </span>
+            </Link>
+          </p>
         </div>
+
 
         <div className={`mt-20 transition-all duration-1000 delay-500 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
           <div className="relative max-w-5xl mx-auto">
