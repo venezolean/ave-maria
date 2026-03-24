@@ -19,7 +19,11 @@ type User = {
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
-  login: (companySlug: string, email: string, password: string) => Promise<void>;
+  login: (data: {
+    email: string
+    password?: string
+    company_slug?: string
+  }) => Promise<any>;
   startTrial: () => Promise<void>;
   logout: () => void;
   isLoading: boolean;
@@ -50,13 +54,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsLoading(false);
   }, []);
 
-  const login = async (companySlug: string, email: string, password: string) => {
-    const response = await api.login({
-      company_slug: companySlug,
-      email,
-      password,
-    });
-    setUser(response.user);
+  const login = async (data: {
+    email: string
+    password?: string
+    company_slug?: string
+  }) => {
+
+    const response = await api.login(data);
+
+    // 🔥 CASO LOGIN EXITOSO
+    if ('token' in response) {
+      setUser(response.user);
+      return response;
+    }
+
+    // 🔥 CASO MULTI EMPRESA
+    if ('requires_company' in response) {
+      return response;
+    }
+
+    return response;
   };
 
   const register = async (data: {

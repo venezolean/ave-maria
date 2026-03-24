@@ -21,6 +21,8 @@ export default function Login() {
 
   const [searchParams] = useSearchParams();
 
+  const [companies, setCompanies] = useState<any[]>([])
+
   useEffect(() => {
 
     const trialParam = searchParams.get("trial");
@@ -44,28 +46,59 @@ export default function Login() {
 
   }, []);
 
-  const handleLogin = async (e: React.FormEvent) => {
+const handleLogin = async (e: React.FormEvent) => {
 
-    e.preventDefault();
+  e.preventDefault();
 
-    setError('');
-    setIsLoading(true);
+  setError('');
+  setIsLoading(true);
 
-    try {
+  try {
 
-      await login(companySlug, email, password);
+    const res = await login({
+      email,
+      password
+    });
 
-    } catch (err) {
-
-      setError(err instanceof Error ? err.message : 'Error al iniciar sesión');
-
-    } finally {
-
-      setIsLoading(false);
-
+    // 🔥 múltiples empresas
+    if (res.requires_company) {
+      setCompanies(res.companies);
+      return;
     }
 
-  };
+    // 🔥 login ok → ya AuthContext setea user
+    if (res.token) return;
+
+  } catch (err) {
+    setError(err instanceof Error ? err.message : 'Error al iniciar sesión');
+  } finally {
+    setIsLoading(false);
+  }
+};
+
+const handleSelectCompany = async (slug: string) => {
+
+  setIsLoading(true);
+  setError('');
+
+  try {
+
+    const res = await login({
+      email,
+      password,
+      company_slug: slug
+    });
+
+    if (!res.token) {
+      setError('Error al iniciar sesión');
+    }
+
+  } catch {
+    setError('Error al iniciar sesión');
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   const handleRegister = async (e: React.FormEvent) => {
 
@@ -173,16 +206,7 @@ export default function Login() {
               </>
             )}
 
-            {mode === "login" && (
-              <input
-                type="text"
-                placeholder="empresa-slug"
-                value={companySlug}
-                onChange={(e) => setCompanySlug(e.target.value)}
-                className="w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg text-white"
-                required
-              />
-            )}
+
 
             <input
               type="email"
@@ -223,6 +247,26 @@ export default function Login() {
             </button>
 
           </form>
+
+          {companies.length > 0 && (
+  <div className="mt-6 space-y-3">
+
+    <p className="text-slate-300 text-sm text-center">
+      Selecciona tu empresa
+    </p>
+
+    {companies.map((c) => (
+      <button
+        key={c.company_id}
+        onClick={() => handleSelectCompany(c.slug)}
+        className="w-full bg-slate-700 hover:bg-slate-600 text-white py-3 rounded-lg text-left px-4"
+      >
+        {c.slug}
+      </button>
+    ))}
+
+  </div>
+)}
 
           <button
             onClick={() =>

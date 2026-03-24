@@ -1,10 +1,27 @@
 const BASE_URL = 'https://edwin.edabso.com/api'
 
 interface LoginCredentials {
-  company_slug: string
+  company_slug?: string
   email: string
   password: string
 }
+
+type LoginUniversalResponse =
+  | {
+      token: string
+      user: {
+        id: string
+        nombre: string
+        tipo_usuario: string
+      }
+    }
+  | {
+      requires_company: true
+      companies: {
+        slug: string
+        company_id: string
+      }[]
+    }
 
 interface LoginResponse {
   token: string
@@ -154,14 +171,25 @@ class ApiClient {
   /* ============================= */
   
 
-  async login(credentials: LoginCredentials): Promise<LoginResponse> {
-    const response = await this.request<LoginResponse>('/auth/login', {
-      method: 'POST',
-      body: JSON.stringify(credentials),
-    })
+  async login(data: {
+    email: string
+    password?: string
+    company_slug?: string
+  }): Promise<LoginUniversalResponse> {
 
-    localStorage.setItem('pos_token', response.token)
-    localStorage.setItem('pos_user', JSON.stringify(response.user))
+    const response = await this.request<LoginUniversalResponse>(
+      '/auth/login-universal',
+      {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }
+    )
+
+    // 🔥 SOLO si hay token guardas sesión
+    if ('token' in response) {
+      localStorage.setItem('pos_token', response.token)
+      localStorage.setItem('pos_user', JSON.stringify(response.user))
+    }
 
     return response
   }
