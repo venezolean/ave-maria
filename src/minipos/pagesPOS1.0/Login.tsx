@@ -249,24 +249,24 @@ const handleSelectCompany = async (slug: string) => {
           </form>
 
           {companies.length > 0 && (
-  <div className="mt-6 space-y-3">
+            <div className="mt-6 space-y-3">
 
-    <p className="text-slate-300 text-sm text-center">
-      Selecciona tu empresa
-    </p>
+              <p className="text-slate-300 text-sm text-center">
+                Selecciona tu empresa
+              </p>
 
-    {companies.map((c) => (
-      <button
-        key={c.company_id}
-        onClick={() => handleSelectCompany(c.slug)}
-        className="w-full bg-slate-700 hover:bg-slate-600 text-white py-3 rounded-lg text-left px-4"
-      >
-        {c.slug}
-      </button>
-    ))}
+              {companies.map((c) => (
+                <button
+                  key={c.company_id}
+                  onClick={() => handleSelectCompany(c.slug)}
+                  className="w-full bg-slate-700 hover:bg-slate-600 text-white py-3 rounded-lg text-left px-4"
+                >
+                  {c.slug}
+                </button>
+              ))}
 
-  </div>
-)}
+            </div>
+          )}
 
           <button
             onClick={() =>
