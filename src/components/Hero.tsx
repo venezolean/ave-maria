@@ -35,8 +35,9 @@ export default function Hero() {
         </div>
 
         <div className={`transition-all duration-1000 delay-300 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+          {/* to="/pos?trial=1" para trial */}
           <Link 
-            to="/pos?trial=1"
+            to="/pos"
             className="group inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 rounded-full text-lg font-semibold transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/50 animate-bounce-subtle"
           >
             Empezar a vender ahora

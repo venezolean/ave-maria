@@ -268,7 +268,7 @@ const handleSelectCompany = async (slug: string) => {
             </div>
           )}
 
-          <button
+          {/* <button
             onClick={() =>
               setMode(mode === "login" ? "register" : "login")
             }
@@ -279,9 +279,9 @@ const handleSelectCompany = async (slug: string) => {
               ? "¿Es tu primera vez? Crea tu cuenta aqui"
               : "¿Ya tienes cuenta? Iniciar sesión"}
 
-          </button>
+          </button> */}
 
-          <button
+          {/* <button
             type="button"
             onClick={async () => {
               setError('');
@@ -298,7 +298,7 @@ const handleSelectCompany = async (slug: string) => {
             className="w-full mt-4 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 rounded-lg"
           >
             Entrar como prueba (sin cuenta)
-          </button>
+          </button> */}
 
         </div>
 

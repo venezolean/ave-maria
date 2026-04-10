@@ -239,6 +239,13 @@ class ApiClient {
     return this.request('/dashboard')
   }
 
+
+  
+  async getCashClosing(date?: string) {
+  const query = date ? `?date=${date}` : '';
+  return this.request(`/dashboard/cash-closing${query}`);
+}
+
   /* ============================= */
   /*          INVENTORY            */
   /* ============================= */
