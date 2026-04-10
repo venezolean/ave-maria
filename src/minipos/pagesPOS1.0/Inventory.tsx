@@ -11,6 +11,7 @@ import {
   Upload,
   ArrowDownZA,
   ArrowDown,
+  Download,
 } from 'lucide-react'
 import { useTrial } from '../trial/TrialProvider'
 
@@ -50,13 +51,31 @@ export default function Inventory() {
   const tableRef = useRef<HTMLTableElement>(null);
   const [showPurchase, setShowPurchase] = useState(false)
   const [showAdjust, setShowAdjust] = useState(false)
+
+  const totalProducts = products.length;
+  const totalStock = products.reduce((sum, p) => sum + p.stock, 0);
+  const totalValue = products.reduce((sum, p) => sum + p.stock_value, 0);
+  const lowStockCount = products.filter(p => p.is_low_stock).length;
+  const [search, setSearch] = useState('');
+  const [sortBy, setSortBy] = useState<'name' | 'stock' | 'value'>('name');
+
+  const filteredProducts = [...products]
+  .filter(p =>
+    p.name.toLowerCase().includes(search.toLowerCase())
+  )
+  .sort((a, b) => {
+    if (sortBy === 'name') return a.name.localeCompare(b.name);
+    if (sortBy === 'stock') return b.stock - a.stock;
+    return b.stock_value - a.stock_value;
+  });
+
   useEffect(() => {
     loadProducts()
   }, [])
 
-const loadProducts = async () => {
-  try {
-    setIsLoading(true);
+  const loadProducts = async () => {
+    try {
+      setIsLoading(true);
 
     const response = await api.getProducts();
 
@@ -96,109 +115,322 @@ const loadProducts = async () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between">
-        <h1 className="text-3xl font-bold text-white">Inventario</h1>
-        <button
-          ref={createButtonRef}
-          onClick={() => setShowCreate(true)}
-          className="bg-blue-600 px-4 py-2 rounded-lg text-white flex items-center gap-2"
-        >
-          <Plus className="w-4 h-4" />
-          Nuevo Producto
-        </button>
-      </div>
+<div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+  <h1 className="text-2xl md:text-3xl font-bold text-white">
+    Inventario
+  </h1>
 
-      <table ref={tableRef} className="w-full text-left text-white">
-        <thead className="text-slate-400">
-          <tr>
-            <th>Producto</th>
-            <th>Precio</th>
-            <th>Stock</th>
-            <th>Valor</th>
-            <th>Mov</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          {products.map((p) => (
-            <tr key={p.id} className="border-t border-slate-700">
-              <td className="py-3 flex items-center gap-3">
-                {p.image_url ? (
-                  <img
-                    src={p.image_url}
-                    loading="lazy"
-                    className="w-10 h-10 rounded object-cover"
-                  />
-                ) : (
-                  <Package className="w-8 h-8 text-slate-600" />
-                )}
-                <div>
-                  <div>{p.name}</div>
-                  {p.is_low_stock && (
-                    <span className="text-xs text-orange-400 flex items-center gap-1">
-                      <AlertTriangle className="w-3 h-3" />
-                      Stock bajo
-                    </span>
-                  )}
-                </div>
-              </td>
-              <td>${p.price.toFixed(2)}</td>
-              <td>{p.stock}</td>
-              <td>${p.stock_value.toFixed(2)}</td>
-              <td>{p.movements_count}</td>
-<td>
-  <div className="flex flex-wrap gap-2 justify-end sm:justify-start">
-    
-    <button
-      className="p-2 bg-slate-700 rounded-md"
-      onClick={() => {
-        setSelectedProduct(p)
-        setShowMovements(true)
-        loadMovements(p.id)
-      }}
+  <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
+    <input
+      type="text"
+      placeholder="Buscar producto..."
+      value={search}
+      onChange={(e) => setSearch(e.target.value)}
+      className="px-4 py-2 rounded-lg bg-slate-800 border border-slate-700 text-white w-full sm:w-64"
+    />
+
+    <select
+      value={sortBy}
+      onChange={(e) => setSortBy(e.target.value as any)}
+      className="px-4 py-2 rounded-lg bg-slate-800 border border-slate-700 text-white"
     >
-      <History className="w-4 h-4" />
+      <option value="name">Nombre</option>
+      <option value="stock">Stock</option>
+      <option value="value">Valor</option>
+    </select>
+  </div>
+
+  <div className="flex flex-wrap gap-2">
+    {/* Importar */}
+    <label className="bg-slate-700 px-4 py-2 rounded-lg text-white flex items-center gap-2 cursor-pointer">
+      <Upload className="w-4 h-4" />
+      <span className="hidden sm:inline">Importar</span>
+      <input
+        type="file"
+        accept=".xlsx, .xls"
+        className="hidden"
+        onChange={async (e) => {
+          const file = e.target.files?.[0];
+          if (!file) return;
+
+          const reader = new FileReader();
+          reader.onload = async () => {
+            const base64 = (reader.result as string).split(',')[1];
+            await api.importProducts(base64);
+            await loadProducts();
+          };
+          reader.readAsDataURL(file);
+        }}
+      />
+    </label>
+
+    {/* Exportar */}
+    <button
+      onClick={async () => {
+        const blob = await api.exportProducts();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'inventario.xlsx';
+        a.click();
+      }}
+      className="bg-green-600 px-4 py-2 rounded-lg text-white flex items-center gap-2"
+    >
+      <Download className="w-4 h-4" />
+      <span className="hidden sm:inline">Exportar</span>
     </button>
 
-    {user?.tipo_usuario === 'admin' && (
-      <>
-        <button
-          className="p-2 bg-slate-700 rounded-md"
-          onClick={() => {
-            setSelectedProduct(p)
-            setShowEdit(true)
-          }}
-        >
-          <Edit2 className="w-4 h-4" />
-        </button>
-
-        <button
-          className="p-2 bg-green-600/20 rounded-md"
-          onClick={() => {
-            setSelectedProduct(p)
-            setShowPurchase(true)
-          }}
-        >
-          <Plus className="w-4 h-4 text-blue-400" />
-        </button>
-
-        <button
-          className="p-2 bg-orange-600/20 rounded-md"
-          onClick={() => {
-            setSelectedProduct(p)
-            setShowAdjust(true)
-          }}
-        >
-          <History className="w-4 h-4 text-orange-400" />
-        </button>
-      </>
-    )}
+    {/* Nuevo Producto */}
+    <button
+      ref={createButtonRef}
+      onClick={() => setShowCreate(true)}
+      className="bg-blue-600 px-4 py-2 rounded-lg text-white flex items-center gap-2"
+    >
+      <Plus className="w-4 h-4" />
+      <span className="hidden sm:inline">Nuevo</span>
+    </button>
   </div>
-</td>
+</div>
+
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+  <KpiCard title="Productos" value={totalProducts} />
+  <KpiCard title="Stock Total" value={totalStock} />
+  <KpiCard
+    title="Valor del Inventario"
+    value={`$${totalValue.toLocaleString()}`}
+    color="text-green-400"
+  />
+  <KpiCard
+    title="Stock Bajo"
+    value={lowStockCount}
+    color="text-orange-400"
+  />
+</div>
+
+      <div className="bg-slate-800/40 border border-slate-700 rounded-xl p-4 overflow-x-auto">
+        <div className="hidden md:block">
+        <table ref={tableRef} className="w-full text-left text-white">
+          <thead className="text-slate-400">
+            <tr>
+              <th>Producto</th>
+              <th>Precio</th>
+              <th>Stock</th>
+              <th>Valor</th>
+              <th>Mov</th>
+              <th></th>
             </tr>
+          </thead>
+          <tbody>
+            {filteredProducts.map((p) => (
+              <tr key={p.id} className="border-t border-slate-700">
+                <td className="py-3 flex items-center gap-3">
+                  {p.image_url ? (
+                    <img
+                      src={p.image_url}
+                      loading="lazy"
+                      className="w-10 h-10 rounded object-cover"
+                    />
+                  ) : (
+                    <Package className="w-8 h-8 text-slate-600" />
+                  )}
+                  <div>
+                    <div>{p.name}</div>
+                    {p.is_low_stock && (
+                      <span className="text-xs text-orange-400 flex items-center gap-1">
+                        <AlertTriangle className="w-3 h-3" />
+                        Stock bajo
+                      </span>
+                    )}
+                  </div>
+                </td>
+                <td>${p.price.toFixed(2)}</td>
+                <td>{p.stock}</td>
+                <td>
+                  <span
+                    className={`px-2 py-1 rounded text-sm font-semibold ${
+                      p.stock === 0
+                        ? 'bg-red-500/20 text-red-400'
+                        : p.is_low_stock
+                        ? 'bg-orange-500/20 text-orange-400'
+                        : 'bg-green-500/20 text-green-400'
+                    }`}
+                  >
+                    {p.stock}
+                  </span>
+                </td>
+                <td>{p.movements_count}</td>
+  <td>
+    <div className="flex flex-wrap gap-2 justify-end sm:justify-start">
+      
+      <button
+        className="p-2 bg-slate-700 rounded-md"
+        onClick={() => {
+          setSelectedProduct(p)
+          setShowMovements(true)
+          loadMovements(p.id)
+        }}
+      >
+        <History className="w-4 h-4" />
+      </button>
+
+      {user?.tipo_usuario === 'admin' && (
+        <>
+          <button
+            className="p-2 bg-slate-700 rounded-md"
+            onClick={() => {
+              setSelectedProduct(p)
+              setShowEdit(true)
+            }}
+          >
+            <Edit2 className="w-4 h-4" />
+          </button>
+
+          <button
+            className="p-2 bg-green-600/20 rounded-md"
+            onClick={() => {
+              setSelectedProduct(p)
+              setShowPurchase(true)
+            }}
+          >
+            <Plus className="w-4 h-4 text-blue-400" />
+          </button>
+
+          <button
+            className="p-2 bg-orange-600/20 rounded-md"
+            onClick={() => {
+              setSelectedProduct(p)
+              setShowAdjust(true)
+            }}
+          >
+            <History className="w-4 h-4 text-orange-400" />
+          </button>
+        </>
+      )}
+    </div>
+  </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        </div>
+        {/* Vista móvil */}
+        {/* Vista móvil */}
+        <div className="md:hidden space-y-3">
+          {filteredProducts.map((p) => (
+            <div
+              key={p.id}
+              className="bg-slate-800 p-4 rounded-xl border border-slate-700"
+            >
+              {/* Encabezado */}
+              <div className="flex justify-between items-start">
+                <div className="flex items-center gap-3">
+                  {p.image_url ? (
+                    <img
+                      src={p.image_url}
+                      className="w-12 h-12 rounded object-cover"
+                    />
+                  ) : (
+                    <Package className="w-10 h-10 text-slate-600" />
+                  )}
+
+                  <div>
+                    <p className="text-white font-semibold">{p.name}</p>
+                    <p className="text-slate-400 text-sm">
+                      ${p.price.toFixed(2)}
+                    </p>
+
+                    {p.is_low_stock && (
+                      <span className="text-xs text-orange-400 flex items-center gap-1">
+                        <AlertTriangle className="w-3 h-3" />
+                        Stock bajo
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <span
+                  className={`px-2 py-1 rounded text-sm font-semibold ${
+                    p.stock === 0
+                      ? 'bg-red-500/20 text-red-400'
+                      : p.is_low_stock
+                      ? 'bg-orange-500/20 text-orange-400'
+                      : 'bg-green-500/20 text-green-400'
+                  }`}
+                >
+                  {p.stock}
+                </span>
+              </div>
+
+              {/* Información adicional */}
+              <div className="flex justify-between text-sm text-slate-400 mt-3">
+                <span>Valor: ${p.stock_value.toFixed(2)}</span>
+                <span>Mov: {p.movements_count}</span>
+              </div>
+
+              {/* Acciones */}
+              <div className="flex flex-wrap gap-2 mt-4">
+                {/* Movimientos */}
+                <button
+                  className="flex-1 bg-slate-700 py-2 rounded-lg flex items-center justify-center gap-1 text-sm"
+                  onClick={() => {
+                    setSelectedProduct(p);
+                    setShowMovements(true);
+                    loadMovements(p.id);
+                  }}
+                >
+                  <History className="w-4 h-4" />
+                  Mov.
+                </button>
+
+                {user?.tipo_usuario === 'admin' && (
+                  <>
+                    {/* Editar */}
+                    <button
+                      className="flex-1 bg-slate-700 py-2 rounded-lg flex items-center justify-center gap-1 text-sm"
+                      onClick={() => {
+                        setSelectedProduct(p);
+                        setShowEdit(true);
+                      }}
+                    >
+                      <Edit2 className="w-4 h-4" />
+                      Editar
+                    </button>
+
+                    {/* Compra */}
+                    <button
+                      className="flex-1 bg-green-600/20 py-2 rounded-lg flex items-center justify-center gap-1 text-sm text-green-400"
+                      onClick={() => {
+                        setSelectedProduct(p);
+                        setShowPurchase(true);
+                      }}
+                    >
+                      <Plus className="w-4 h-4" />
+                      Compra
+                    </button>
+
+                    {/* Ajuste */}
+                    <button
+                      className="flex-1 bg-orange-600/20 py-2 rounded-lg flex items-center justify-center gap-1 text-sm text-orange-400"
+                      onClick={() => {
+                        setSelectedProduct(p);
+                        setShowAdjust(true);
+                      }}
+                    >
+                      <History className="w-4 h-4" />
+                      Ajuste
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
           ))}
-        </tbody>
-      </table>
+        </div>
+      </div>
+
+
+
+
+
 
       {showCreate && (
         <ProductModal
@@ -659,4 +891,23 @@ function StockMovementModal({
 
     </div>
   )
+}
+
+function KpiCard({
+  title,
+  value,
+  color = "text-white",
+}: {
+  title: string;
+  value: string | number;
+  color?: string;
+}) {
+  return (
+    <div className="bg-slate-800 p-4 rounded-xl border border-slate-700">
+      <p className="text-slate-400 text-sm">{title}</p>
+      <p className={`text-xl md:text-2xl font-bold ${color}`}>
+        {value}
+      </p>
+    </div>
+  );
 }

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { AuthProvider, useAuth } from './minipos/context/AuthContext';
 import Layout from './minipos/components/Layout';
 import Login from './minipos/pagesPOS1.0/Login';
@@ -7,12 +7,23 @@ import Inventory from './minipos/pagesPOS1.0/Inventory';
 import POS from './minipos/pagesPOS1.0/POS';
 import Sales from './minipos/pagesPOS1.0/Sales';
 import { TrialProvider } from './minipos/trial/TrialProvider'
+import Users from './minipos/pagesPOS1.0/Users';
 
-type Page = 'dashboard' | 'inventory' | 'pos' | 'sales';
+type Page = 'dashboard' | 'inventory' | 'pos' | 'sales'| 'users';
 
 function AppContent() {
-  const { isAuthenticated, isLoading } = useAuth();
-  const [currentPage, setCurrentPage] = useState<Page>('dashboard');
+  const { isAuthenticated, isLoading, user } = useAuth();
+  const [currentPage, setCurrentPage] = useState<Page>(
+    user?.tipo_usuario === 'operador' ? 'pos' : 'dashboard'
+  );
+
+  const role = user?.tipo_usuario;
+
+  useEffect(() => {
+    if (role === 'operador' && currentPage !== 'pos') {
+      setCurrentPage('pos');
+    }
+  }, [role, currentPage]);
 
   if (isLoading) {
     return (
@@ -35,6 +46,8 @@ function AppContent() {
         return <Inventory />;
       case 'pos':
         return <POS />;
+      case 'users':
+        return <Users />;
       case 'sales':
         return <Sales />;
       default:

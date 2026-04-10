@@ -9,6 +9,7 @@ import {
   CreditCard,
   Banknote,
   CheckCircle2,
+  Landmark,
 } from 'lucide-react';
 import { useTrial } from '../trial/TrialProvider'
 
@@ -36,7 +37,7 @@ export default function POS() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState<'cash' | 'card'>('cash');
+  const [paymentMethod, setPaymentMethod] = useState<'cash' | 'card' | 'transfer' >('cash');
   const { trackAction } = useTrial()
   const [showCartMobile, setShowCartMobile] = useState(false);
   const productRef = useRef<HTMLButtonElement>(null)
@@ -46,6 +47,8 @@ export default function POS() {
   useEffect(() => {
     loadProducts();
   }, []);
+
+  
 
   const loadProducts = async () => {
     try {
@@ -335,10 +338,10 @@ console.log("NORMALIZED PRODUCTS:", normalized);
               </span>
             </div>
 
-            <div className="flex gap-2">
+            <div className="grid grid-cols-3 gap-2">
               <button
                 onClick={() => setPaymentMethod('cash')}
-                className={`flex-1 p-3 rounded-lg border ${
+                className={`p-3 rounded-lg border ${
                   paymentMethod === 'cash'
                     ? 'bg-blue-600 text-white'
                     : 'bg-slate-900 border-slate-700 text-slate-400'
@@ -350,7 +353,7 @@ console.log("NORMALIZED PRODUCTS:", normalized);
 
               <button
                 onClick={() => setPaymentMethod('card')}
-                className={`flex-1 p-3 rounded-lg border ${
+                className={`p-3 rounded-lg border ${
                   paymentMethod === 'card'
                     ? 'bg-blue-600 text-white'
                     : 'bg-slate-900 border-slate-700 text-slate-400'
@@ -358,6 +361,18 @@ console.log("NORMALIZED PRODUCTS:", normalized);
               >
                 <CreditCard className="w-5 h-5 mx-auto mb-1" />
                 <span className="text-sm">Tarjeta</span>
+              </button>
+
+              <button
+                onClick={() => setPaymentMethod('transfer')}
+                className={`p-3 rounded-lg border ${
+                  paymentMethod === 'transfer'
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-slate-900 border-slate-700 text-slate-400'
+                }`}
+              >
+                <Landmark className="w-5 h-5 mx-auto mb-1" />
+                <span className="text-sm">Transferencia</span>
               </button>
             </div>
 

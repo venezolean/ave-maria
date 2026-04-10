@@ -8,6 +8,7 @@ import {
   LogOut,
   Menu,
   X,
+  UsersIcon,
 } from 'lucide-react';
 import { useState } from 'react';
 import TrialOverlay from '../trial/TrialOverlay';
@@ -20,8 +21,8 @@ import { useNavigate } from 'react-router-dom';
 
 interface LayoutProps {
   children: ReactNode;
-  currentPage: 'dashboard' | 'inventory' | 'pos' | 'sales';
-  onNavigate: (page: 'dashboard' | 'inventory' | 'pos' | 'sales') => void;
+  currentPage: 'dashboard' | 'inventory' | 'pos' | 'sales'| 'users';
+  onNavigate: (page: 'dashboard' | 'inventory' | 'pos' | 'sales'| 'users') => void;
 }
 
 export default function Layout({ children, currentPage, onNavigate }: LayoutProps) {
@@ -33,11 +34,29 @@ export default function Layout({ children, currentPage, onNavigate }: LayoutProp
 
 
 
+const role = user?.tipo_usuario || 'admin';
+
   const navItems = [
-    { id: 'dashboard' as const, label: 'Dashboard', icon: LayoutDashboard },
+    ...(role === 'admin'
+      ? [
+          { id: 'dashboard' as const, label: 'Dashboard', icon: LayoutDashboard },
+        ]
+      : []),
+
     { id: 'pos' as const, label: 'Punto de Venta', icon: ShoppingCart },
-    { id: 'inventory' as const, label: 'Inventario', icon: Package },
-    { id: 'sales' as const, label: 'Ventas', icon: Receipt },
+
+    ...(role !== 'operador'
+      ? [
+          { id: 'inventory' as const, label: 'Inventario', icon: Package },
+          { id: 'sales' as const, label: 'Ventas', icon: Receipt },
+        ]
+      : []),
+
+    ...(role === 'admin'
+      ? [
+          { id: 'users' as const, label: 'Usuarios', icon: UsersIcon },
+        ]
+      : []),
   ];
 
   const handleLogout = () => {

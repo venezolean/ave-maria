@@ -204,6 +204,33 @@ class ApiClient {
     return userStr ? JSON.parse(userStr) : null
   }
 
+
+  /* ============================= */
+  /*            USERS              */
+  /* ============================= */
+
+  async getUsers() {
+    return this.request('/users')
+  }
+
+  async createUser(data: {
+    nombre: string
+    tipo_usuario: 'operador' | 'supervisor'
+    password?: string
+  }) {
+    return this.request('/users', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    })
+  }
+
+  async updateUser(id: string, data: any) {
+    return this.request(`/users/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data)
+    })
+}
+
   /* ============================= */
   /*         DASHBOARD             */
   /* ============================= */
@@ -216,9 +243,49 @@ class ApiClient {
   /*          INVENTORY            */
   /* ============================= */
 
-  async getProducts() {
-    return this.request('/inventory/products')
+async getProducts() {
+  const userStr = localStorage.getItem('pos_user');
+  const user = userStr ? JSON.parse(userStr) : null;
+
+  // Si es operador, usar el endpoint especial
+  const endpoint =
+    user?.tipo_usuario === 'operador'
+      ? '/inventory/products/operator'
+      : '/inventory/products';
+
+  console.log('👤 Usuario:', user);
+  console.log('🌐 Endpoint seleccionado:', endpoint);
+
+  return this.request(endpoint);
+}
+
+
+async importProducts(fileBase64: string) {
+  return this.request('/inventory/products/import', {
+    method: 'POST',
+    body: JSON.stringify({ fileBase64 }),
+  });
+}
+
+async exportProducts() {
+  const token = localStorage.getItem('pos_token');
+
+  const response = await fetch(
+    `${this.baseUrl}/inventory/products/export`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error('Error al exportar productos');
   }
+
+  return response.blob();
+}
+
 
   async getProductMovements(productId: string) {
     return this.request(`/inventory/movements/${productId}`)

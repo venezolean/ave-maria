@@ -209,8 +209,8 @@ const handleSelectCompany = async (slug: string) => {
 
 
             <input
-              type="email"
-              placeholder="Email"
+              type="text"
+              placeholder="Email o COD. Empleado"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg text-white"
